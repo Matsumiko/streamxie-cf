@@ -1,0 +1,55 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist/
+dist-ssr
+dist-ssr/
+.wrangler
+.wrangler/
+*.local
+playwright-report/
+test-results/
+
+# Local secrets and credentials
+.env
+.env.*
+*.env
+!*.example.env
+cloudflare.env
+secret*.env
+secret.*.env
+secret.pegangan.owner.env
+
+# Runtime agent checkpoints stay local; keep .gitkeep tracked through nested ignore.
+.runbook/sessions/*.json
+.runbook/
+
+# Dokumen internal agen (lokal, jangan dipush)
+AGENTS.md
+AGENT-VARIANTS.md
+FRONTEND-DNA.md
+BACKEND-SECURITY-CHECKLIST.md
+CHANGELOG.md
+PLAN.md
+SESSION.md
+SESSION-EXAMPLE.json
+TODO.md
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
