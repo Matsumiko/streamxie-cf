@@ -117,22 +117,22 @@ export const MyListPage = ({ myList, onToggleList, progressMap }: MyListPageProp
       </div>
 
       <Tabs value={tab} onValueChange={setTab}>
-        <TabsList className="mb-8 grid w-full max-w-xl grid-cols-3 bg-card">
-          <TabsTrigger value="favorites" className="text-foreground flex items-center gap-2">
+        <TabsList className="mb-8 grid h-auto min-h-11 w-full max-w-xl grid-cols-3 bg-card">
+          <TabsTrigger value="favorites" className="min-h-10 text-foreground flex items-center gap-2">
             <BookmarkSimple size={15} weight="bold" />
             Saved
             {favorites.length > 0 && (
               <span className="ml-1 rounded-full bg-primary/20 px-1.5 py-0.5 text-[10px] font-bold text-primary">{favorites.length}</span>
             )}
           </TabsTrigger>
-          <TabsTrigger value="continue" className="text-foreground flex items-center gap-2">
+          <TabsTrigger value="continue" className="min-h-10 text-foreground flex items-center gap-2">
             <ClockCounterClockwise size={15} weight="bold" />
             Continue
             {continueWatching.length > 0 && (
               <span className="ml-1 rounded-full bg-primary/20 px-1.5 py-0.5 text-[10px] font-bold text-primary">{continueWatching.length}</span>
             )}
           </TabsTrigger>
-          <TabsTrigger value="history" className="text-foreground">History</TabsTrigger>
+          <TabsTrigger value="history" className="min-h-10 text-foreground">History</TabsTrigger>
         </TabsList>
 
         {/* ── Favorites ── */}

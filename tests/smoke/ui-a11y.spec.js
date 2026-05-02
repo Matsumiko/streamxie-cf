@@ -95,3 +95,19 @@ test("clear search query button has touch-friendly size", async ({ page }) => {
   expect(box?.width ?? 0, "Clear query button width should be >= 40px").toBeGreaterThanOrEqual(40);
   expect(box?.height ?? 0, "Clear query button height should be >= 40px").toBeGreaterThanOrEqual(40);
 });
+
+test("my-list tabs have touch-friendly size", async ({ page }) => {
+  const route = "/my-list";
+  const response = await page.goto(route, { waitUntil: "domcontentloaded" });
+  expect(response, `Navigation should return a response for ${route}`).not.toBeNull();
+  expect(response?.status(), `Expected HTTP 200 for ${route}`).toBe(200);
+
+  const labels = ["Saved", "Continue", "History"];
+  for (const label of labels) {
+    const tabButton = page.getByRole("tab", { name: new RegExp(label, "i") });
+    await expect(tabButton).toBeVisible();
+    const box = await tabButton.boundingBox();
+    expect(box, `Tab ${label} bounding box should exist`).not.toBeNull();
+    expect(box?.height ?? 0, `Tab ${label} height should be >= 40px`).toBeGreaterThanOrEqual(40);
+  }
+});
