@@ -213,7 +213,7 @@ export const HeroBanner = ({ items, loading = false }: HeroBannerProps) => {
               </Link>
             </div>
 
-            {/* Slide indicators with progress */}
+            {/* Indikator slide dengan progress */}
             <div className="flex items-center gap-3 pt-4">
               {slides.map((item, index) => (
                 <button
@@ -221,18 +221,22 @@ export const HeroBanner = ({ items, loading = false }: HeroBannerProps) => {
                   type="button"
                   aria-label={`Go to slide ${index + 1}: ${item.title}`}
                   onClick={() => goTo(index)}
-                  className="group relative h-1 rounded-full bg-white/20 transition-all"
-                  style={{ width: index === activeIndex ? 56 : 20 }}
+                  className="group relative flex h-10 items-center justify-center rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  style={{ width: index === activeIndex ? 56 : 44 }}
                 >
-                  {index === activeIndex && (
-                    <span
-                      className="absolute inset-y-0 left-0 rounded-full bg-primary transition-none"
-                      style={{ width: `${progress}%` }}
-                    />
-                  )}
-                  {index !== activeIndex && (
-                    <span className="absolute inset-0 rounded-full bg-white/30 group-hover:bg-white/60 transition-colors" />
-                  )}
+                  <span
+                    className="absolute left-1/2 top-1/2 h-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/20 transition-all"
+                    style={{ width: index === activeIndex ? 56 : 20 }}
+                  >
+                    {index === activeIndex ? (
+                      <span
+                        className="absolute inset-y-0 left-0 rounded-full bg-primary transition-none"
+                        style={{ width: `${progress}%` }}
+                      />
+                    ) : (
+                      <span className="absolute inset-0 rounded-full bg-white/30 transition-colors group-hover:bg-white/60" />
+                    )}
+                  </span>
                 </button>
               ))}
               <span className="ml-2 text-xs text-white/50">

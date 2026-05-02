@@ -111,3 +111,19 @@ test("my-list tabs have touch-friendly size", async ({ page }) => {
     expect(box?.height ?? 0, `Tab ${label} height should be >= 40px`).toBeGreaterThanOrEqual(40);
   }
 });
+
+test("hero slide indicators have touch-friendly size", async ({ page }) => {
+  const route = "/";
+  const response = await page.goto(route, { waitUntil: "domcontentloaded" });
+  expect(response, `Navigation should return a response for ${route}`).not.toBeNull();
+  expect(response?.status(), `Expected HTTP 200 for ${route}`).toBe(200);
+
+  await page.waitForTimeout(1200);
+  const indicator = page.getByRole("button", { name: /Go to slide/i }).first();
+  await expect(indicator).toBeVisible();
+
+  const box = await indicator.boundingBox();
+  expect(box, "Hero indicator bounding box should exist").not.toBeNull();
+  expect(box?.width ?? 0, "Hero indicator width should be >= 40px").toBeGreaterThanOrEqual(40);
+  expect(box?.height ?? 0, "Hero indicator height should be >= 40px").toBeGreaterThanOrEqual(40);
+});
