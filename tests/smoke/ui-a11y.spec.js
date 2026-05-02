@@ -80,3 +80,18 @@ for (const route of AUTH_ROUTES) {
     expect(box?.height ?? 0, `Toggle button height should be >= 40px on ${route}`).toBeGreaterThanOrEqual(40);
   });
 }
+
+test("clear search query button has touch-friendly size", async ({ page }) => {
+  const route = "/search?q=avatar";
+  const response = await page.goto(route, { waitUntil: "domcontentloaded" });
+  expect(response, `Navigation should return a response for ${route}`).not.toBeNull();
+  expect(response?.status(), `Expected HTTP 200 for ${route}`).toBe(200);
+
+  const clearButton = page.getByRole("button", { name: "Clear search query" });
+  await expect(clearButton).toBeVisible();
+
+  const box = await clearButton.boundingBox();
+  expect(box, "Clear query button bounding box should exist").not.toBeNull();
+  expect(box?.width ?? 0, "Clear query button width should be >= 40px").toBeGreaterThanOrEqual(40);
+  expect(box?.height ?? 0, "Clear query button height should be >= 40px").toBeGreaterThanOrEqual(40);
+});

@@ -205,7 +205,7 @@ export const SearchPage = ({ myList, onToggleList }: SearchPageProps) => {
               onClick={() => { setQuery(""); setParams(withScopeParams("")); clearFilters(); }}
               aria-label="Clear search query"
               title="Clear search"
-              className="shrink-0 text-muted-foreground hover:text-foreground transition-colors"
+              className="shrink-0 flex h-11 w-11 items-center justify-center rounded-md text-muted-foreground transition-colors hover:text-foreground"
             >
               <X size={18} weight="bold" />
             </button>
