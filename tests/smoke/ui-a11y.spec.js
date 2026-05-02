@@ -62,3 +62,21 @@ for (const route of ROUTES) {
     ).toEqual([]);
   });
 }
+
+const AUTH_ROUTES = ["/login", "/register", "/reset-password"];
+
+for (const route of AUTH_ROUTES) {
+  test(`password visibility toggle has touch-friendly size: ${route}`, async ({ page }) => {
+    const response = await page.goto(route, { waitUntil: "domcontentloaded" });
+    expect(response, `Navigation should return a response for ${route}`).not.toBeNull();
+    expect(response?.status(), `Expected HTTP 200 for ${route}`).toBe(200);
+
+    const toggle = page.getByRole("button", { name: /Tampilkan kata sandi|Sembunyikan kata sandi/i }).first();
+    await expect(toggle).toBeVisible();
+
+    const box = await toggle.boundingBox();
+    expect(box, `Toggle button bounding box should exist on ${route}`).not.toBeNull();
+    expect(box?.width ?? 0, `Toggle button width should be >= 40px on ${route}`).toBeGreaterThanOrEqual(40);
+    expect(box?.height ?? 0, `Toggle button height should be >= 40px on ${route}`).toBeGreaterThanOrEqual(40);
+  });
+}
