@@ -16,6 +16,11 @@ test("trailer modal menjaga fokus keyboard dengan benar", async ({ page }) => {
 
   const closeButton = page.getByRole("button", { name: "Close trailer" });
   await expect(closeButton).toBeFocused();
+  await page.waitForTimeout(350);
+  const closeBox = await closeButton.boundingBox();
+  expect(closeBox, "Bounding box tombol close trailer harus ada").not.toBeNull();
+  expect(closeBox?.width ?? 0, "Lebar tombol close trailer minimal 40px").toBeGreaterThanOrEqual(40);
+  expect(closeBox?.height ?? 0, "Tinggi tombol close trailer minimal 40px").toBeGreaterThanOrEqual(40);
 
   // Dengan fokus trap aktif, Tab tidak boleh keluar dari modal.
   await page.keyboard.press("Tab");
