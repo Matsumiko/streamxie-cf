@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowSquareOut, CaretLeft, CaretRight, Images, Info, Tag, X } from "@phosphor-icons/react";
 import { CastGrid } from "@/components/details/CastGrid";
@@ -15,6 +15,10 @@ export const TmdbDetailPanels = ({ item }: TmdbDetailPanelsProps) => {
   const crew = item.crew ?? [];
   const hasInfo = facts.length > 0 || keywords.length > 0 || Boolean(item.sourceUrl);
   const mediaRailRef = useRef<HTMLDivElement | null>(null);
+  const previewDialogRef = useRef<HTMLDivElement | null>(null);
+  const previewCloseRef = useRef<HTMLButtonElement | null>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const previewTitleId = useId();
   const [activeMediaIndex, setActiveMediaIndex] = useState<number | null>(null);
   const activeMedia = activeMediaIndex === null ? null : media[activeMediaIndex] ?? null;
   const canNavigateMedia = media.length > 1;
@@ -40,6 +44,70 @@ export const TmdbDetailPanels = ({ item }: TmdbDetailPanelsProps) => {
     const next = (activeMediaIndex + delta + media.length) % media.length;
     setActiveMediaIndex(next);
   };
+
+  useEffect(() => {
+    if (activeMediaIndex === null) return;
+
+    // Simpan fokus terakhir dan kunci scroll halaman saat modal pratinjau aktif.
+    previousFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const previousBodyOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    // Fokus awal diarahkan ke tombol close agar keyboard langsung operasional.
+    previewCloseRef.current?.focus();
+
+    const handleKeydown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setActiveMediaIndex(null);
+        return;
+      }
+
+      if (canNavigateMedia && event.key === "ArrowLeft") {
+        event.preventDefault();
+        movePreview("prev");
+        return;
+      }
+
+      if (canNavigateMedia && event.key === "ArrowRight") {
+        event.preventDefault();
+        movePreview("next");
+        return;
+      }
+
+      if (event.key !== "Tab") return;
+
+      const dialog = previewDialogRef.current;
+      if (!dialog) return;
+
+      const selector =
+        "a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex='-1'])";
+      const focusableElements = Array.from(dialog.querySelectorAll<HTMLElement>(selector)).filter(
+        (element) => !element.hasAttribute("disabled") && element.getAttribute("aria-hidden") !== "true",
+      );
+
+      if (focusableElements.length === 0) return;
+
+      const first = focusableElements[0];
+      const last = focusableElements[focusableElements.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+
+      if (event.shiftKey && active === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeydown);
+    return () => {
+      window.removeEventListener("keydown", handleKeydown);
+      document.body.style.overflow = previousBodyOverflow;
+      previousFocusRef.current?.focus();
+    };
+  }, [activeMediaIndex, canNavigateMedia]);
 
   return (
     <>
@@ -200,12 +268,23 @@ export const TmdbDetailPanels = ({ item }: TmdbDetailPanelsProps) => {
       ) : null}
 
       {activeMedia ? (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-background/90 p-4 backdrop-blur-sm">
+        <div
+          ref={previewDialogRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={previewTitleId}
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-background/90 p-4 backdrop-blur-sm"
+        >
+          <p id={previewTitleId} className="sr-only">
+            Pratinjau media: {activeMedia.alt}
+          </p>
           <button
+            ref={previewCloseRef}
             type="button"
             onClick={() => setActiveMediaIndex(null)}
             className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:border-primary hover:text-primary"
             aria-label="Close media preview"
+            title="Close media preview"
           >
             <X size={18} weight="bold" />
           </button>
@@ -217,6 +296,7 @@ export const TmdbDetailPanels = ({ item }: TmdbDetailPanelsProps) => {
                 onClick={() => movePreview("prev")}
                 className="absolute left-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:border-primary hover:text-primary"
                 aria-label="Previous media"
+                title="Previous media"
               >
                 <CaretLeft size={18} weight="bold" />
               </button>
@@ -225,6 +305,7 @@ export const TmdbDetailPanels = ({ item }: TmdbDetailPanelsProps) => {
                 onClick={() => movePreview("next")}
                 className="absolute right-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:border-primary hover:text-primary"
                 aria-label="Next media"
+                title="Next media"
               >
                 <CaretRight size={18} weight="bold" />
               </button>
