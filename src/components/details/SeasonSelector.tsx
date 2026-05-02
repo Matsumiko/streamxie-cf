@@ -22,7 +22,7 @@ export const SeasonSelector = ({
     <div className="max-w-xs">
       <label className="mb-2 block text-sm text-muted-foreground">Season</label>
       <Select value={selectedSeasonId} onValueChange={onSelect}>
-        <SelectTrigger className="border-border bg-input text-foreground">
+        <SelectTrigger className="h-10 border-border bg-input text-foreground">
           <SelectValue placeholder="Select season" />
         </SelectTrigger>
         <SelectContent className="border-border bg-card text-card-foreground">

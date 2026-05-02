@@ -188,7 +188,7 @@ export const TmdbDetailPanels = ({ item }: TmdbDetailPanelsProps) => {
                 <button
                   type="button"
                   onClick={() => scrollMedia("prev")}
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:border-primary hover:text-primary"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:border-primary hover:text-primary"
                   aria-label="Previous media"
                 >
                   <CaretLeft size={16} weight="bold" />
@@ -196,7 +196,7 @@ export const TmdbDetailPanels = ({ item }: TmdbDetailPanelsProps) => {
                 <button
                   type="button"
                   onClick={() => scrollMedia("next")}
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:border-primary hover:text-primary"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:border-primary hover:text-primary"
                   aria-label="Next media"
                 >
                   <CaretRight size={16} weight="bold" />

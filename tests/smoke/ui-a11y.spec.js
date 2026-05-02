@@ -234,3 +234,73 @@ test("watch source controls have touch-friendly size", async ({ page }) => {
   expect(box, "Watch source button bounding box should exist").not.toBeNull();
   expect(box?.height ?? 0, "Watch source button height should be >= 40px").toBeGreaterThanOrEqual(40);
 });
+
+test("browse filter toggle has touch-friendly size", async ({ page }) => {
+  const route = "/browse";
+  const response = await page.goto(route, { waitUntil: "domcontentloaded" });
+  expect(response, `Navigation should return a response for ${route}`).not.toBeNull();
+  expect(response?.status(), `Expected HTTP 200 for ${route}`).toBe(200);
+
+  const toggle = page.getByRole("button", { name: /Show Filters|Hide Filters/i });
+  await expect(toggle).toBeVisible();
+  const box = await toggle.boundingBox();
+  expect(box, "Browse filter toggle bounding box should exist").not.toBeNull();
+  expect(box?.height ?? 0, "Browse filter toggle height should be >= 40px").toBeGreaterThanOrEqual(40);
+});
+
+test("detail synopsis and season controls have touch-friendly size", async ({ page }) => {
+  const movieRoute = "/movie/tmdb--movie--1007757";
+  const movieResponse = await page.goto(movieRoute, { waitUntil: "domcontentloaded" });
+  expect(movieResponse, `Navigation should return a response for ${movieRoute}`).not.toBeNull();
+  expect(movieResponse?.status(), `Expected HTTP 200 for ${movieRoute}`).toBe(200);
+
+  const readMore = page.getByRole("button", { name: /Read more|Read less/i }).first();
+  if ((await readMore.count()) === 0) {
+    return;
+  }
+  await expect(readMore).toBeVisible();
+  const readMoreBox = await readMore.boundingBox();
+  expect(readMoreBox, "Synopsis toggle bounding box should exist").not.toBeNull();
+  expect(readMoreBox?.height ?? 0, "Synopsis toggle height should be >= 40px").toBeGreaterThanOrEqual(40);
+
+  const seriesRoute = "/series/tmdb--tv--202250";
+  const seriesResponse = await page.goto(seriesRoute, { waitUntil: "domcontentloaded" });
+  expect(seriesResponse, `Navigation should return a response for ${seriesRoute}`).not.toBeNull();
+  expect(seriesResponse?.status(), `Expected HTTP 200 for ${seriesRoute}`).toBe(200);
+
+  const seasonTrigger = page.getByRole("combobox").first();
+  if ((await seasonTrigger.count()) === 0) {
+    return;
+  }
+  await expect(seasonTrigger).toBeVisible();
+  const seasonBox = await seasonTrigger.boundingBox();
+  expect(seasonBox, "Season trigger bounding box should exist").not.toBeNull();
+  expect(seasonBox?.height ?? 0, "Season trigger height should be >= 40px").toBeGreaterThanOrEqual(40);
+});
+
+test("detail media navigation controls have touch-friendly size", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name.includes("mobile"), "Desktop-specific controls");
+
+  const route = "/movie/tmdb--movie--1007757";
+  const response = await page.goto(route, { waitUntil: "domcontentloaded" });
+  expect(response, `Navigation should return a response for ${route}`).not.toBeNull();
+  expect(response?.status(), `Expected HTTP 200 for ${route}`).toBe(200);
+
+  const prevButton = page.getByRole("button", { name: "Previous media" }).first();
+  const nextButton = page.getByRole("button", { name: "Next media" }).first();
+  if ((await prevButton.count()) === 0 || (await nextButton.count()) === 0) {
+    return;
+  }
+
+  await expect(prevButton).toBeVisible();
+  await expect(nextButton).toBeVisible();
+
+  const prevBox = await prevButton.boundingBox();
+  const nextBox = await nextButton.boundingBox();
+  expect(prevBox, "Previous media button bounding box should exist").not.toBeNull();
+  expect(nextBox, "Next media button bounding box should exist").not.toBeNull();
+  expect(prevBox?.width ?? 0, "Previous media button width should be >= 40px").toBeGreaterThanOrEqual(40);
+  expect(prevBox?.height ?? 0, "Previous media button height should be >= 40px").toBeGreaterThanOrEqual(40);
+  expect(nextBox?.width ?? 0, "Next media button width should be >= 40px").toBeGreaterThanOrEqual(40);
+  expect(nextBox?.height ?? 0, "Next media button height should be >= 40px").toBeGreaterThanOrEqual(40);
+});

@@ -115,7 +115,7 @@ export const BrowsePage = ({ myList, onToggleList }: BrowsePageProps) => {
           <button
             type="button"
             onClick={() => setFilterOpen((v) => !v)}
-            className={`mb-3 rounded-lg border px-4 py-2 text-sm transition-colors ${filterOpen ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-foreground hover:border-primary hover:text-primary"}`}
+            className={`mb-3 min-h-10 rounded-lg border px-4 py-2 text-sm transition-colors ${filterOpen ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-foreground hover:border-primary hover:text-primary"}`}
           >
             {filterOpen ? "Hide Filters" : "Show Filters"}
             {hasActiveFilters && (

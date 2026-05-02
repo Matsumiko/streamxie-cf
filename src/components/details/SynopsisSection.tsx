@@ -16,7 +16,7 @@ export const SynopsisSection = ({ text }: { text: string }) => {
       <Button
         type="button"
         onClick={() => setExpanded((current) => !current)}
-        className="mt-4 bg-card text-foreground hover:bg-muted"
+        className="mt-4 h-10 bg-card text-foreground hover:bg-muted"
       >
         {expanded ? "Read less" : "Read more"}
       </Button>
