@@ -157,6 +157,8 @@ export const TmdbDetailPanels = ({ item }: TmdbDetailPanelsProps) => {
                 <button
                   type="button"
                   onClick={() => setActiveMediaIndex(index)}
+                  aria-label={`Buka pratinjau ${asset.type}: ${asset.alt}`}
+                  title={`Buka pratinjau ${asset.type}`}
                   className={`${asset.type === "poster" ? "aspect-[2/3]" : "aspect-video"} block w-full overflow-hidden rounded-xl border border-border bg-card transition-colors hover:border-primary`}
                 >
                   <img src={asset.src} alt={asset.alt} loading="lazy" className="h-full w-full object-cover" />

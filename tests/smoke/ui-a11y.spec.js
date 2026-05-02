@@ -4,8 +4,13 @@ const ROUTES = [
   "/",
   "/browse",
   "/search?q=avatar",
+  "/movie/tmdb--movie--1007757",
+  "/series/tmdb--tv--202250",
   "/my-list",
   "/watch/tmdb--movie--1007757",
+  "/login",
+  "/register",
+  "/reset-password",
   "/streamxie1",
 ];
 

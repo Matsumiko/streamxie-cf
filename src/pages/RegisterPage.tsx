@@ -64,7 +64,7 @@ export const RegisterPage = () => {
           <h1 className="mb-6 text-center text-2xl font-semibold tracking-tight text-foreground">Create Account</h1>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Name */}
+            {/* Nama */}
             <div className="space-y-1.5">
               <label htmlFor="name" className="block text-sm font-medium text-muted-foreground">Full name</label>
               <div className="relative">
@@ -98,7 +98,7 @@ export const RegisterPage = () => {
               </div>
             </div>
 
-            {/* Password */}
+            {/* Kata sandi */}
             <div className="space-y-1.5">
               <label htmlFor="reg-password" className="block text-sm font-medium text-muted-foreground">Password</label>
               <div className="relative">
@@ -115,6 +115,8 @@ export const RegisterPage = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+                  title={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   {showPassword ? <EyeSlash size={16} /> : <Eye size={16} />}
@@ -122,7 +124,7 @@ export const RegisterPage = () => {
               </div>
             </div>
 
-            {/* Confirm password */}
+            {/* Konfirmasi kata sandi */}
             <div className="space-y-1.5">
               <label htmlFor="confirm-password" className="block text-sm font-medium text-muted-foreground">Confirm password</label>
               <div className="relative">

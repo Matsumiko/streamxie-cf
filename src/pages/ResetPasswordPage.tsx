@@ -85,6 +85,8 @@ export const ResetPasswordPage = () => {
                     <button
                       type="button"
                       onClick={() => setShowPassword((v) => !v)}
+                      aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+                      title={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                     >
                       {showPassword ? <EyeSlash size={16} /> : <Eye size={16} />}
@@ -108,7 +110,7 @@ export const ResetPasswordPage = () => {
                   </div>
                 </div>
 
-                {/* Password strength hint */}
+                {/* Petunjuk kekuatan kata sandi */}
                 {password.length > 0 && (
                   <div className="space-y-1.5">
                     <div className="flex gap-1">

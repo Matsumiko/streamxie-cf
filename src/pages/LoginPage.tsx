@@ -32,7 +32,7 @@ export const LoginPage = () => {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4">
-      {/* Background gradient blobs */}
+      {/* Latar belakang gradien */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -left-40 -top-40 h-96 w-96 rounded-full bg-primary/10 blur-[120px]" />
         <div className="absolute -bottom-32 -right-32 h-80 w-80 rounded-full bg-primary/8 blur-[100px]" />
@@ -52,7 +52,7 @@ export const LoginPage = () => {
           <p className="text-sm text-muted-foreground">Welcome back. Sign in to continue.</p>
         </div>
 
-        {/* Card */}
+        {/* Kartu form */}
         <div className="rounded-2xl border border-border bg-card/80 p-8 shadow-2xl backdrop-blur-xl">
           <h1 className="mb-6 text-center text-2xl font-semibold tracking-tight text-foreground">Sign In</h1>
 
@@ -76,7 +76,7 @@ export const LoginPage = () => {
               </div>
             </div>
 
-            {/* Password */}
+            {/* Kata sandi */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <label htmlFor="password" className="block text-sm font-medium text-muted-foreground">
@@ -100,6 +100,8 @@ export const LoginPage = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+                  title={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   {showPassword ? <EyeSlash size={16} /> : <Eye size={16} />}
@@ -107,14 +109,14 @@ export const LoginPage = () => {
               </div>
             </div>
 
-            {/* Error */}
+            {/* Pesan error */}
             {error && (
               <p className="rounded-lg border border-red-700/40 bg-red-950/40 px-4 py-2.5 text-xs text-red-400">
                 {error}
               </p>
             )}
 
-            {/* Submit */}
+            {/* Tombol submit */}
             <button
               type="submit"
               disabled={isPending}
