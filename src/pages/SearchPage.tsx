@@ -275,7 +275,7 @@ export const SearchPage = ({ myList, onToggleList }: SearchPageProps) => {
                       key={genre}
                       type="button"
                       onClick={() => toggleGenre(genre)}
-                      className={`rounded-full border px-3.5 py-1.5 text-xs font-medium transition-all ${
+                      className={`min-h-10 rounded-full border px-4 py-2 text-sm font-medium transition-all ${
                         active
                           ? "border-primary bg-primary/15 text-primary"
                           : "border-border bg-card text-muted-foreground hover:border-primary/60 hover:text-foreground"
@@ -294,7 +294,7 @@ export const SearchPage = ({ myList, onToggleList }: SearchPageProps) => {
                   <button
                     type="button"
                     onClick={clearFilters}
-                    className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs text-muted-foreground transition-colors hover:border-red-500/60 hover:text-red-400"
+                    className="flex min-h-10 items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2 text-sm text-muted-foreground transition-colors hover:border-red-500/60 hover:text-red-400"
                   >
                     <X size={12} weight="bold" />
                     Clear
@@ -304,7 +304,7 @@ export const SearchPage = ({ myList, onToggleList }: SearchPageProps) => {
                   <button
                     type="button"
                     onClick={() => setShowSortMenu((v) => !v)}
-                    className="flex items-center gap-2 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-primary/60"
+                    className="flex min-h-10 items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/60"
                   >
                     <SortAscending size={13} weight="bold" />
                     {sortLabels[sort]}

@@ -72,7 +72,7 @@ export const PosterCard = ({ item, inList, onToggleList }: PosterCardProps) => {
               type="button"
               aria-label={inList ? "Remove from My List" : "Add to My List"}
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleList(item.id); }}
-              className={`inline-flex min-h-[36px] min-w-[36px] items-center justify-center rounded-lg text-sm font-medium transition-all ${inList ? "bg-primary/30 text-primary ring-1 ring-primary" : "bg-card/80 text-foreground backdrop-blur-sm hover:bg-primary/20 hover:text-primary"}`}
+              className={`inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg text-sm font-medium transition-all ${inList ? "bg-primary/30 text-primary ring-1 ring-primary" : "bg-card/80 text-foreground backdrop-blur-sm hover:bg-primary/20 hover:text-primary"}`}
             >
               <BookmarkSimple size={16} weight={inList ? "fill" : "bold"} />
             </button>

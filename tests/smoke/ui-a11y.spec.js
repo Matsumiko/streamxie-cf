@@ -127,3 +127,31 @@ test("hero slide indicators have touch-friendly size", async ({ page }) => {
   expect(box?.width ?? 0, "Hero indicator width should be >= 40px").toBeGreaterThanOrEqual(40);
   expect(box?.height ?? 0, "Hero indicator height should be >= 40px").toBeGreaterThanOrEqual(40);
 });
+
+test("search filters and add-to-list controls have touch-friendly size", async ({ page }) => {
+  const route = "/search?q=avatar";
+  const response = await page.goto(route, { waitUntil: "domcontentloaded" });
+  expect(response, `Navigation should return a response for ${route}`).not.toBeNull();
+  expect(response?.status(), `Expected HTTP 200 for ${route}`).toBe(200);
+
+  await page.waitForTimeout(1200);
+
+  const sortButton = page.getByRole("button", { name: /Relevance|Top Rated|Newest First|Oldest First|A–Z/i }).first();
+  await expect(sortButton).toBeVisible();
+  const sortBox = await sortButton.boundingBox();
+  expect(sortBox, "Sort button bounding box should exist").not.toBeNull();
+  expect(sortBox?.height ?? 0, "Sort button height should be >= 40px").toBeGreaterThanOrEqual(40);
+
+  const genreChip = page.getByRole("button", { name: /^Action$/i }).first();
+  await expect(genreChip).toBeVisible();
+  const chipBox = await genreChip.boundingBox();
+  expect(chipBox, "Genre chip bounding box should exist").not.toBeNull();
+  expect(chipBox?.height ?? 0, "Genre chip height should be >= 40px").toBeGreaterThanOrEqual(40);
+
+  const addButton = page.getByRole("button", { name: "Add to My List" }).first();
+  await expect(addButton).toBeVisible();
+  const addBox = await addButton.boundingBox();
+  expect(addBox, "Add-to-list button bounding box should exist").not.toBeNull();
+  expect(addBox?.width ?? 0, "Add-to-list button width should be >= 40px").toBeGreaterThanOrEqual(40);
+  expect(addBox?.height ?? 0, "Add-to-list button height should be >= 40px").toBeGreaterThanOrEqual(40);
+});
