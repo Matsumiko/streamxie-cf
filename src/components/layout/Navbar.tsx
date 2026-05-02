@@ -63,7 +63,7 @@ const ProviderFilterDropdown = ({
   return (
     <NavigationMenuItem>
       <details className="group relative">
-        <summary className={`flex h-9 cursor-pointer list-none items-center gap-1.5 rounded-lg px-3.5 text-sm font-medium transition-colors ${
+        <summary className={`flex h-10 cursor-pointer list-none items-center gap-1.5 rounded-lg px-3.5 text-sm font-medium transition-colors ${
           activeSlug ? "text-primary" : "text-muted-foreground hover:text-foreground"
         }`}>
           {label}
@@ -239,7 +239,7 @@ export const Navbar = ({ onOpenCommand }: NavbarProps) => {
                     to="/"
                     end
                     className={({ isActive: a }) =>
-                      `relative flex h-9 items-center rounded-lg px-3.5 text-sm font-medium transition-colors ${a ? "text-primary" : "text-muted-foreground hover:text-foreground"}`
+                      `relative flex h-10 items-center rounded-lg px-3.5 text-sm font-medium transition-colors ${a ? "text-primary" : "text-muted-foreground hover:text-foreground"}`
                     }
                   >
                     {({ isActive: a }) => (
@@ -254,7 +254,7 @@ export const Navbar = ({ onOpenCommand }: NavbarProps) => {
                   <NavLink
                     to="/my-list"
                     className={({ isActive: a }) =>
-                      `relative flex h-9 items-center rounded-lg px-3.5 text-sm font-medium transition-colors ${a ? "text-primary" : "text-muted-foreground hover:text-foreground"}`
+                      `relative flex h-10 items-center rounded-lg px-3.5 text-sm font-medium transition-colors ${a ? "text-primary" : "text-muted-foreground hover:text-foreground"}`
                     }
                   >
                     {({ isActive: a }) => (
@@ -273,7 +273,7 @@ export const Navbar = ({ onOpenCommand }: NavbarProps) => {
                         <NavLink
                           to={page.href}
                           className={({ isActive: a }) =>
-                            `relative flex h-9 items-center rounded-lg px-3.5 text-sm font-medium transition-colors ${a ? "text-primary" : "text-muted-foreground hover:text-foreground"}`
+                            `relative flex h-10 items-center rounded-lg px-3.5 text-sm font-medium transition-colors ${a ? "text-primary" : "text-muted-foreground hover:text-foreground"}`
                           }
                         >
                           {({ isActive: a }) => (
@@ -311,7 +311,7 @@ export const Navbar = ({ onOpenCommand }: NavbarProps) => {
                         <button
                           type="button"
                           onClick={() => setBrowseDropdownOpen((v) => !v)}
-                          className={`relative flex h-9 items-center gap-1.5 rounded-lg px-3.5 text-sm font-medium transition-colors ${isBrowseActive ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+                          className={`relative flex h-10 items-center gap-1.5 rounded-lg px-3.5 text-sm font-medium transition-colors ${isBrowseActive ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
                         >
                           Browse
                           <CaretDown
@@ -351,7 +351,7 @@ export const Navbar = ({ onOpenCommand }: NavbarProps) => {
                         <NavLink
                           to={page.href}
                           className={({ isActive: a }) =>
-                            `relative flex h-9 items-center rounded-lg px-3.5 text-sm font-medium transition-colors ${a ? "text-primary" : "text-muted-foreground hover:text-foreground"}`
+                            `relative flex h-10 items-center rounded-lg px-3.5 text-sm font-medium transition-colors ${a ? "text-primary" : "text-muted-foreground hover:text-foreground"}`
                           }
                         >
                           {({ isActive: a }) => (
@@ -376,7 +376,7 @@ export const Navbar = ({ onOpenCommand }: NavbarProps) => {
               type="button"
               aria-label="Open search"
               onClick={onOpenCommand}
-              className="flex h-9 min-w-[180px] items-center justify-between gap-3 rounded-lg border border-border bg-card/50 px-3.5 py-2 text-sm text-muted-foreground backdrop-blur-sm transition-all hover:border-primary/60 hover:bg-card hover:text-foreground xl:min-w-[240px]"
+              className="flex h-10 min-w-[180px] items-center justify-between gap-3 rounded-lg border border-border bg-card/50 px-3.5 py-2 text-sm text-muted-foreground backdrop-blur-sm transition-all hover:border-primary/60 hover:bg-card hover:text-foreground xl:min-w-[240px]"
             >
               <span className="flex items-center gap-2">
                 <MagnifyingGlass size={15} weight="bold" />
@@ -388,7 +388,7 @@ export const Navbar = ({ onOpenCommand }: NavbarProps) => {
             {isAnonymous ? (
               <Link
                 to="/login"
-                className="flex h-9 items-center gap-2 rounded-lg border border-primary/50 bg-primary/10 px-3 text-xs font-semibold text-primary transition-all hover:bg-primary/20"
+                className="flex h-10 items-center gap-2 rounded-lg border border-primary/50 bg-primary/10 px-3 text-xs font-semibold text-primary transition-all hover:bg-primary/20"
               >
                 Sign in
               </Link>
@@ -397,7 +397,7 @@ export const Navbar = ({ onOpenCommand }: NavbarProps) => {
                 type="button"
                 aria-label="Go to profile"
                 onClick={() => navigate("/profile")}
-                className="h-9 w-9 overflow-hidden rounded-full bg-card ring-1 ring-border transition-all hover:scale-110 hover:ring-2 hover:ring-primary hover:ring-offset-1 hover:ring-offset-background"
+                className="h-10 w-10 overflow-hidden rounded-full bg-card ring-1 ring-border transition-all hover:scale-110 hover:ring-2 hover:ring-primary hover:ring-offset-1 hover:ring-offset-background"
                 title={`Profile — ${avatar.label} avatar`}
               >
                 <img
@@ -415,7 +415,7 @@ export const Navbar = ({ onOpenCommand }: NavbarProps) => {
               type="button"
               aria-label="Search"
               onClick={onOpenCommand}
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card/60 text-foreground backdrop-blur-sm"
+              className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card/60 text-foreground backdrop-blur-sm"
             >
               <MagnifyingGlass size={17} weight="bold" />
             </button>
@@ -423,7 +423,7 @@ export const Navbar = ({ onOpenCommand }: NavbarProps) => {
               type="button"
               aria-label="Menu"
               onClick={() => setMobileMenuOpen((v) => !v)}
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card/60 text-foreground backdrop-blur-sm"
+              className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card/60 text-foreground backdrop-blur-sm"
             >
               {mobileMenuOpen ? <X size={17} weight="bold" /> : <ListIcon size={17} weight="bold" />}
             </button>

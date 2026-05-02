@@ -155,3 +155,60 @@ test("search filters and add-to-list controls have touch-friendly size", async (
   expect(addBox?.width ?? 0, "Add-to-list button width should be >= 40px").toBeGreaterThanOrEqual(40);
   expect(addBox?.height ?? 0, "Add-to-list button height should be >= 40px").toBeGreaterThanOrEqual(40);
 });
+
+test("desktop navbar and carousel controls have touch-friendly size", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name.includes("mobile"), "Desktop-specific controls");
+
+  const route = "/";
+  const response = await page.goto(route, { waitUntil: "domcontentloaded" });
+  expect(response, `Navigation should return a response for ${route}`).not.toBeNull();
+  expect(response?.status(), `Expected HTTP 200 for ${route}`).toBe(200);
+
+  await page.waitForTimeout(1200);
+
+  const browseButton = page.locator("header").getByRole("button", { name: "Browse" }).first();
+  await expect(browseButton).toBeVisible();
+  const browseBox = await browseButton.boundingBox();
+  expect(browseBox, "Browse button bounding box should exist").not.toBeNull();
+  expect(browseBox?.height ?? 0, "Browse button height should be >= 40px").toBeGreaterThanOrEqual(40);
+
+  const openSearch = page.getByRole("button", { name: "Open search" });
+  await expect(openSearch).toBeVisible();
+  const openSearchBox = await openSearch.boundingBox();
+  expect(openSearchBox, "Open search button bounding box should exist").not.toBeNull();
+  expect(openSearchBox?.height ?? 0, "Open search button height should be >= 40px").toBeGreaterThanOrEqual(40);
+
+  const scrollLeft = page.getByRole("button", { name: "Scroll left" }).first();
+  const scrollRight = page.getByRole("button", { name: "Scroll right" }).first();
+  if ((await scrollLeft.count()) === 0 || (await scrollRight.count()) === 0) {
+    return;
+  }
+  await expect(scrollLeft).toBeVisible();
+  await expect(scrollRight).toBeVisible();
+
+  const leftBox = await scrollLeft.boundingBox();
+  const rightBox = await scrollRight.boundingBox();
+  expect(leftBox, "Scroll left button bounding box should exist").not.toBeNull();
+  expect(rightBox, "Scroll right button bounding box should exist").not.toBeNull();
+  expect(leftBox?.width ?? 0, "Scroll left button width should be >= 40px").toBeGreaterThanOrEqual(40);
+  expect(leftBox?.height ?? 0, "Scroll left button height should be >= 40px").toBeGreaterThanOrEqual(40);
+  expect(rightBox?.width ?? 0, "Scroll right button width should be >= 40px").toBeGreaterThanOrEqual(40);
+  expect(rightBox?.height ?? 0, "Scroll right button height should be >= 40px").toBeGreaterThanOrEqual(40);
+});
+
+test("footer social controls have touch-friendly size", async ({ page }) => {
+  const route = "/search?q=avatar";
+  const response = await page.goto(route, { waitUntil: "domcontentloaded" });
+  expect(response, `Navigation should return a response for ${route}`).not.toBeNull();
+  expect(response?.status(), `Expected HTTP 200 for ${route}`).toBe(200);
+
+  for (const label of ["Twitter", "Instagram", "GitHub"]) {
+    const socialButton = page.getByRole("button", { name: label });
+    await socialButton.scrollIntoViewIfNeeded();
+    await expect(socialButton).toBeVisible();
+    const box = await socialButton.boundingBox();
+    expect(box, `${label} button bounding box should exist`).not.toBeNull();
+    expect(box?.width ?? 0, `${label} button width should be >= 40px`).toBeGreaterThanOrEqual(40);
+    expect(box?.height ?? 0, `${label} button height should be >= 40px`).toBeGreaterThanOrEqual(40);
+  }
+});
