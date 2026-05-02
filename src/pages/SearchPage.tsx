@@ -196,6 +196,7 @@ export const SearchPage = ({ myList, onToggleList }: SearchPageProps) => {
             autoFocus
             value={query}
             onChange={(event) => setQuery(event.target.value)}
+            aria-label={`Search ${scopeLabel}`}
             placeholder={`Search ${scopeLabel} titles, genres, and stories`}
             className="border-0 bg-transparent text-foreground placeholder:text-muted-foreground focus-visible:ring-0"
           />

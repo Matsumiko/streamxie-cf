@@ -160,6 +160,7 @@ export const CommandPalette = ({ open, onOpenChange }: CommandPaletteProps) => {
               autoFocus
               value={query}
               onChange={(event) => setQuery(event.target.value)}
+              aria-label={`Search ${scopeLabel}`}
               placeholder={`Search ${scopeLabel} titles, genres, cast, or keywords`}
               className="border-0 bg-transparent text-foreground placeholder:text-muted-foreground focus-visible:ring-0"
             />

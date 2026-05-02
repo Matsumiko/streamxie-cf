@@ -304,3 +304,25 @@ test("detail media navigation controls have touch-friendly size", async ({ page 
   expect(nextBox?.width ?? 0, "Next media button width should be >= 40px").toBeGreaterThanOrEqual(40);
   expect(nextBox?.height ?? 0, "Next media button height should be >= 40px").toBeGreaterThanOrEqual(40);
 });
+
+test("search inputs expose accessible names", async ({ page }) => {
+  const searchRoute = "/search?q=avatar";
+  const searchResponse = await page.goto(searchRoute, { waitUntil: "domcontentloaded" });
+  expect(searchResponse, `Navigation should return a response for ${searchRoute}`).not.toBeNull();
+  expect(searchResponse?.status(), `Expected HTTP 200 for ${searchRoute}`).toBe(200);
+
+  const searchInput = page.getByRole("textbox", { name: /Search /i }).first();
+  await expect(searchInput).toBeVisible();
+
+  const homeRoute = "/";
+  const homeResponse = await page.goto(homeRoute, { waitUntil: "domcontentloaded" });
+  expect(homeResponse, `Navigation should return a response for ${homeRoute}`).not.toBeNull();
+  expect(homeResponse?.status(), `Expected HTTP 200 for ${homeRoute}`).toBe(200);
+
+  const openSearch = page.getByRole("button", { name: /Open search|Search/i }).first();
+  await expect(openSearch).toBeVisible();
+  await openSearch.click();
+
+  const paletteInput = page.getByRole("textbox", { name: /Search /i }).first();
+  await expect(paletteInput).toBeVisible();
+});
