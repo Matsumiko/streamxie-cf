@@ -212,3 +212,25 @@ test("footer social controls have touch-friendly size", async ({ page }) => {
     expect(box?.height ?? 0, `${label} button height should be >= 40px`).toBeGreaterThanOrEqual(40);
   }
 });
+
+test("watch source controls have touch-friendly size", async ({ page }) => {
+  const route = "/watch/tmdb--movie--1007757";
+  const response = await page.goto(route, { waitUntil: "domcontentloaded" });
+  expect(response, `Navigation should return a response for ${route}`).not.toBeNull();
+  expect(response?.status(), `Expected HTTP 200 for ${route}`).toBe(200);
+
+  await page.waitForTimeout(1200);
+
+  const sourceButtons = page.locator("main details button");
+  if ((await sourceButtons.count()) === 0) {
+    return;
+  }
+
+  const sourceButton = sourceButtons.first();
+  await sourceButton.scrollIntoViewIfNeeded();
+  await expect(sourceButton).toBeVisible();
+
+  const box = await sourceButton.boundingBox();
+  expect(box, "Watch source button bounding box should exist").not.toBeNull();
+  expect(box?.height ?? 0, "Watch source button height should be >= 40px").toBeGreaterThanOrEqual(40);
+});

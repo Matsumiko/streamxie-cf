@@ -141,7 +141,7 @@ const SourceSelector = ({
                     key={`${source.server}-${source.url}`}
                     type="button"
                     onClick={() => onSelect(source.url)}
-                    className={`flex min-h-9 items-center justify-between gap-2 rounded-md border px-2.5 py-1.5 text-left text-xs transition-colors ${
+                    className={`flex min-h-10 items-center justify-between gap-2 rounded-md border px-2.5 py-1.5 text-left text-xs transition-colors ${
                       selected
                         ? "border-primary/60 bg-primary/15 text-primary"
                         : "border-border bg-background/70 text-muted-foreground hover:border-primary/50 hover:text-foreground"
