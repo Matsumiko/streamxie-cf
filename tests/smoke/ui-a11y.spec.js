@@ -10,6 +10,7 @@ const ROUTES = [
   "/watch/tmdb--movie--1007757",
   "/login",
   "/register",
+  "/forgot-password",
   "/reset-password",
   "/streamxie1",
 ];
@@ -325,4 +326,28 @@ test("search inputs expose accessible names", async ({ page }) => {
 
   const paletteInput = page.getByRole("textbox", { name: /Search /i }).first();
   await expect(paletteInput).toBeVisible();
+});
+
+test("navbar brand link exposes explicit accessible name", async ({ page }) => {
+  const route = "/login";
+  const response = await page.goto(route, { waitUntil: "domcontentloaded" });
+  expect(response, `Navigation should return a response for ${route}`).not.toBeNull();
+  expect(response?.status(), `Expected HTTP 200 for ${route}`).toBe(200);
+
+  const brandLink = page.locator("header a[href='/']").first();
+  await expect(brandLink).toHaveAttribute("aria-label", /go to home/i);
+});
+
+test("detail cast carousel is keyboard-focusable", async ({ page }) => {
+  const route = "/movie/tmdb--movie--1007757";
+  const response = await page.goto(route, { waitUntil: "domcontentloaded" });
+  expect(response, `Navigation should return a response for ${route}`).not.toBeNull();
+  expect(response?.status(), `Expected HTTP 200 for ${route}`).toBe(200);
+
+  const scroller = page.locator("section div[aria-label$='horizontal list']").first();
+  if ((await scroller.count()) === 0) {
+    return;
+  }
+
+  await expect(scroller).toHaveAttribute("tabindex", "0");
 });

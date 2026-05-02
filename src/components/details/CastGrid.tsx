@@ -10,7 +10,12 @@ export const CastGrid = ({ cast, title = "Cast" }: { cast: CastMember[]; title?:
       <h2 className="mb-6 text-2xl font-medium uppercase tracking-[0.12em] text-foreground">
         {title}
       </h2>
-      <div className="flex gap-4 overflow-x-auto pb-4 hide-scrollbar" style={{ scrollSnapType: "x mandatory" }}>
+      <div
+        className="flex gap-4 overflow-x-auto pb-4 hide-scrollbar"
+        style={{ scrollSnapType: "x mandatory" }}
+        tabIndex={0}
+        aria-label={`${title} horizontal list`}
+      >
         {cast.map((member, i) => (
           <motion.div
             key={`${member.name}-${member.role}`}

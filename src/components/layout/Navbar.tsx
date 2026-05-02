@@ -226,6 +226,8 @@ export const Navbar = ({ onOpenCommand }: NavbarProps) => {
         <nav className="mx-auto flex max-w-container items-center justify-between gap-4 px-6 py-3 md:px-12 lg:gap-8">
           <Link
             to="/"
+            aria-label="Go to home"
+            title="Go to home"
             className="shrink-0 text-foreground transition-colors hover:text-primary focus-visible:outline-none"
           >
             <BrandLogo size="sm" textClassName="hidden sm:block" />
