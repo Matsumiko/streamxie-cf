@@ -30,7 +30,7 @@ import {
 } from "@/lib/streamxie";
 
 type NavbarProps = {
-  onOpenCommand: () => void;
+  onOpenCommand: (trigger?: HTMLElement | null) => void;
 };
 
 const browseCategories = [
@@ -375,7 +375,7 @@ export const Navbar = ({ onOpenCommand }: NavbarProps) => {
             <button
               type="button"
               aria-label="Open search"
-              onClick={onOpenCommand}
+              onClick={(event) => onOpenCommand(event.currentTarget)}
               className="flex h-10 min-w-[180px] items-center justify-between gap-3 rounded-lg border border-border bg-card/50 px-3.5 py-2 text-sm text-muted-foreground backdrop-blur-sm transition-all hover:border-primary/60 hover:bg-card hover:text-foreground xl:min-w-[240px]"
             >
               <span className="flex items-center gap-2">
@@ -414,7 +414,7 @@ export const Navbar = ({ onOpenCommand }: NavbarProps) => {
             <button
               type="button"
               aria-label="Search"
-              onClick={onOpenCommand}
+              onClick={(event) => onOpenCommand(event.currentTarget)}
               className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-card/60 text-foreground backdrop-blur-sm"
             >
               <MagnifyingGlass size={17} weight="bold" />

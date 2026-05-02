@@ -60,3 +60,22 @@ test("modal pratinjau media mendukung keyboard dan pemulihan fokus", async ({ pa
   await expect(dialog).toBeHidden();
   await expect(mediaButton).toBeFocused();
 });
+
+test("command palette memulihkan fokus ke tombol pemicu setelah ditutup", async ({ page }) => {
+  const response = await page.goto("/", { waitUntil: "domcontentloaded" });
+  expect(response, "Navigation harus menghasilkan response").not.toBeNull();
+  expect(response?.status(), "Route home harus 200").toBe(200);
+
+  await page.waitForTimeout(1_000);
+
+  const trigger = page.getByRole("button", { name: /Open search|Search/i }).first();
+  await expect(trigger).toBeVisible();
+  await trigger.click();
+
+  const paletteInput = page.getByRole("textbox", { name: /Search /i }).first();
+  await expect(paletteInput).toBeVisible();
+
+  await page.keyboard.press("Escape");
+  await expect(paletteInput).toBeHidden();
+  await expect(trigger).toBeFocused();
+});

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MagnifyingGlass, FilmStrip } from "@phosphor-icons/react";
 import {
@@ -32,6 +32,9 @@ export const CommandPalette = ({ open, onOpenChange }: CommandPaletteProps) => {
   const [loading, setLoading] = useState(false);
   const [liveResults, setLiveResults] = useState<ContentItem[]>([]);
   const [scopeKeywords, setScopeKeywords] = useState<string[]>([]);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const wasOpenRef = useRef(false);
+  const restoreTimerRef = useRef<number | null>(null);
   const { items: catalogItems } = useStreamCatalog();
   const location = useLocation();
   const navigate = useNavigate();
@@ -55,6 +58,33 @@ export const CommandPalette = ({ open, onOpenChange }: CommandPaletteProps) => {
   useEffect(() => {
     setRecent(getSearchHistory());
   }, [open]);
+
+  useLayoutEffect(() => {
+    if (open) {
+      previousFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      wasOpenRef.current = true;
+      return;
+    }
+
+    if (!wasOpenRef.current) return;
+    const previous = previousFocusRef.current;
+    if (restoreTimerRef.current) window.clearTimeout(restoreTimerRef.current);
+    restoreTimerRef.current = window.setTimeout(() => {
+      if (previous && previous.isConnected) {
+        previous.focus();
+        return;
+      }
+      const fallbackTrigger = document.querySelector<HTMLElement>("button[aria-label='Open search'], button[aria-label='Search']");
+      if (fallbackTrigger) fallbackTrigger.focus();
+    }, 320);
+    wasOpenRef.current = false;
+  }, [open]);
+
+  useEffect(() => {
+    return () => {
+      if (restoreTimerRef.current) window.clearTimeout(restoreTimerRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     let mounted = true;

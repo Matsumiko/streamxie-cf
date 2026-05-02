@@ -9,7 +9,7 @@ import { Toaster } from "@/components/ui/Toaster-provider";
 
 type AppLayoutProps = {
   children: ReactNode;
-  onOpenCommand: () => void;
+  onOpenCommand: (trigger?: HTMLElement | null) => void;
 };
 
 export const AppLayout = ({ children, onOpenCommand }: AppLayoutProps) => {

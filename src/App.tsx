@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { CommandPalette } from "@/components/common/CommandPalette";
@@ -34,6 +34,7 @@ const ScrollToTop = () => {
 
 const AppRoutes = () => {
   const [commandOpen, setCommandOpen] = useState(false);
+  const commandTriggerRef = useRef<HTMLElement | null>(null);
   const [myList, setMyList] = useState<string[]>([]);
   const [progressVersion, setProgressVersion] = useState(0);
 
@@ -69,10 +70,29 @@ const AppRoutes = () => {
     });
   };
 
+  const handleOpenCommand = (trigger?: HTMLElement | null) => {
+    if (trigger) commandTriggerRef.current = trigger;
+    setCommandOpen(true);
+  };
+
+  const handleCommandOpenChange = (nextOpen: boolean) => {
+    setCommandOpen(nextOpen);
+    if (nextOpen) return;
+    window.setTimeout(() => {
+      const trigger = commandTriggerRef.current;
+      if (trigger && trigger.isConnected) {
+        trigger.focus();
+        return;
+      }
+      const fallbackTrigger = document.querySelector<HTMLElement>("button[aria-label='Open search'], button[aria-label='Search']");
+      if (fallbackTrigger) fallbackTrigger.focus();
+    }, 260);
+  };
+
   return (
     <>
       <ScrollToTop />
-      <AppLayout onOpenCommand={() => setCommandOpen(true)}>
+      <AppLayout onOpenCommand={handleOpenCommand}>
         <Routes>
           <Route
             path="/"
@@ -189,7 +209,7 @@ const AppRoutes = () => {
           />
         </Routes>
       </AppLayout>
-      <CommandPalette open={commandOpen} onOpenChange={setCommandOpen} />
+      <CommandPalette open={commandOpen} onOpenChange={handleCommandOpenChange} />
     </>
   );
 };
