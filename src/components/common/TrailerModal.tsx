@@ -1,4 +1,4 @@
-import { useEffect, type MouseEvent } from "react";
+import { useEffect, useId, useRef, type MouseEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "@phosphor-icons/react";
 
@@ -10,13 +10,55 @@ type TrailerModalProps = {
 };
 
 export const TrailerModal = ({ open, title, trailerUrl, onClose }: TrailerModalProps) => {
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const titleId = useId();
+
   useEffect(() => {
     if (!open) return;
+
+    // Simpan elemen fokus terakhir dan kunci scroll halaman saat modal terbuka.
+    previousFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const previousBodyOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    // Fokuskan tombol close sebagai titik awal navigasi keyboard.
+    closeButtonRef.current?.focus();
+
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
+      if (e.key !== "Tab") return;
+
+      const container = dialogRef.current;
+      if (!container) return;
+
+      const focusableSelector =
+        "a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex='-1'])";
+      const focusableElements = Array.from(container.querySelectorAll<HTMLElement>(focusableSelector)).filter(
+        (el) => !el.hasAttribute("disabled") && el.getAttribute("aria-hidden") !== "true",
+      );
+      if (focusableElements.length === 0) return;
+
+      const first = focusableElements[0];
+      const last = focusableElements[focusableElements.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+
+      if (e.shiftKey && active === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
+
     window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
+    return () => {
+      window.removeEventListener("keydown", handler);
+      document.body.style.overflow = previousBodyOverflow;
+      previousFocusRef.current?.focus();
+    };
   }, [open, onClose]);
 
   return (
@@ -30,11 +72,15 @@ export const TrailerModal = ({ open, title, trailerUrl, onClose }: TrailerModalP
           className="fixed inset-0 z-[150] flex items-center justify-center p-4"
           onClick={onClose}
         >
-          {/* Backdrop */}
+          {/* Latar belakang */}
           <div className="absolute inset-0 bg-background/90 backdrop-blur-md" />
 
-          {/* Modal */}
+          {/* Kontainer modal */}
           <motion.div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={titleId}
             initial={{ opacity: 0, scale: 0.93, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -42,20 +88,24 @@ export const TrailerModal = ({ open, title, trailerUrl, onClose }: TrailerModalP
             className="relative z-10 w-full max-w-4xl overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
             onClick={(event: MouseEvent<HTMLDivElement>) => event.stopPropagation()}
           >
-            {/* Header */}
+            {/* Bagian header */}
             <div className="flex items-center justify-between border-b border-border px-6 py-4">
-              <p className="text-base font-medium uppercase tracking-widest text-foreground">{title} — Trailer</p>
+              <p id={titleId} className="text-base font-medium uppercase tracking-widest text-foreground">
+                {title} — Trailer
+              </p>
               <button
+                ref={closeButtonRef}
                 type="button"
                 onClick={onClose}
                 className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary"
                 aria-label="Close trailer"
+                title="Close trailer"
               >
                 <X size={18} weight="bold" />
               </button>
             </div>
 
-            {/* Video area */}
+            {/* Area video */}
             <div className="aspect-video w-full bg-black">
               {trailerUrl ? (
                 <iframe
