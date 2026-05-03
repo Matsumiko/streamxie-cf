@@ -17,6 +17,11 @@ test("trailer modal menjaga fokus keyboard dengan benar", async ({ page }) => {
   const dialog = page.getByRole("dialog");
   await expect(dialog).toBeVisible();
 
+  const trailerFrame = dialog.locator("iframe").first();
+  await expect(trailerFrame).toBeVisible();
+  await expect(trailerFrame).toHaveAttribute("referrerpolicy", "no-referrer");
+  await expect(trailerFrame).toHaveAttribute("sandbox", /allow-scripts/);
+
   const closeButton = page.getByRole("button", { name: "Close trailer" });
   await expect(closeButton).toBeFocused();
   await page.waitForTimeout(350);

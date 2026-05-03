@@ -113,6 +113,8 @@ export const TrailerModal = ({ open, title, trailerUrl, onClose }: TrailerModalP
                   title={`${title} Trailer`}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
+                  referrerPolicy="no-referrer"
+                  sandbox="allow-same-origin allow-scripts allow-presentation allow-popups"
                   className="h-full w-full"
                 />
               ) : (
