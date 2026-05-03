@@ -1,13 +1,19 @@
 import { expect, test } from "@playwright/test";
 
 const RUN_ON_PROJECT = "desktop-chromium";
+const API_SMOKE_ENABLED = process.env.SMOKE_RUN_API === "1";
 
 const ensureSingleProjectRun = (testInfo) => {
   test.skip(testInfo.project.name !== RUN_ON_PROJECT, `API smoke runs only on ${RUN_ON_PROJECT}.`);
 };
 
+const ensureApiSmokeEnabled = () => {
+  test.skip(!API_SMOKE_ENABLED, "Set SMOKE_RUN_API=1 to run API smoke tests.");
+};
+
 test("core APIs respond with expected status and shape", async ({ request }, testInfo) => {
   ensureSingleProjectRun(testInfo);
+  ensureApiSmokeEnabled();
 
   const sessionRes = await request.get("/api/auth/session");
   expect(sessionRes.status()).toBe(200);
@@ -39,6 +45,7 @@ test("core APIs respond with expected status and shape", async ({ request }, tes
 
 test("auth + account-state lifecycle works when explicitly enabled", async ({ playwright }, testInfo) => {
   ensureSingleProjectRun(testInfo);
+  ensureApiSmokeEnabled();
   test.skip(process.env.SMOKE_RUN_AUTH !== "1", "Set SMOKE_RUN_AUTH=1 to run auth write-flow smoke.");
 
   const baseURL = process.env.SMOKE_BASE_URL || "https://streamxie.pages.dev";

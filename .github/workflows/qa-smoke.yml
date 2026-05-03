@@ -4,9 +4,14 @@ on:
   workflow_dispatch:
     inputs:
       smoke_base_url:
-        description: "Target base URL for smoke tests"
+        description: "Target base URL for smoke tests (opsional; kosongkan untuk preview lokal commit ini)"
         required: false
-        default: "https://streamxie.pages.dev"
+        default: ""
+      run_api_flow:
+        description: "Run API smoke tests (core APIs)"
+        required: false
+        type: boolean
+        default: false
       run_auth_flow:
         description: "Run auth/account-state write flow smoke (creates temporary QA account)"
         required: false
@@ -29,9 +34,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      SMOKE_BASE_URL: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.smoke_base_url || 'https://streamxie.pages.dev' }}
-      SMOKE_RUN_AUTH: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.run_auth_flow == 'true' && '1' || '0' }}
-      SMOKE_RUN_UI_AUTH: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.run_ui_auth_flow == 'true' && '1' || '0' }}
       CI: true
     steps:
       - name: Checkout
@@ -48,6 +50,43 @@ jobs:
 
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
+
+      - name: Build aplikasi
+        run: npm run build
+
+      - name: Tentukan target smoke
+        shell: bash
+        run: |
+          TARGET="${{ github.event.inputs.smoke_base_url }}"
+          if [ -z "$TARGET" ]; then
+            TARGET="http://127.0.0.1:4173"
+          fi
+          echo "SMOKE_BASE_URL=$TARGET" >> "$GITHUB_ENV"
+          echo "SMOKE_RUN_API=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.run_api_flow == 'true' && '1' || '0' }}" >> "$GITHUB_ENV"
+          echo "SMOKE_RUN_AUTH=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.run_auth_flow == 'true' && '1' || '0' }}" >> "$GITHUB_ENV"
+          echo "SMOKE_RUN_UI_AUTH=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.run_ui_auth_flow == 'true' && '1' || '0' }}" >> "$GITHUB_ENV"
+
+      - name: Jalankan preview lokal untuk smoke
+        if: env.SMOKE_BASE_URL == 'http://127.0.0.1:4173'
+        shell: bash
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/vite-preview.log 2>&1 &
+          for i in {1..40}; do
+            if curl -fsS "http://127.0.0.1:4173" >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/vite-preview.log
+          exit 1
+
+      - name: Info mode smoke
+        shell: bash
+        run: |
+          echo "SMOKE_BASE_URL=$SMOKE_BASE_URL"
+          echo "SMOKE_RUN_API=$SMOKE_RUN_API"
+          echo "SMOKE_RUN_AUTH=$SMOKE_RUN_AUTH"
+          echo "SMOKE_RUN_UI_AUTH=$SMOKE_RUN_UI_AUTH"
 
       - name: Run smoke tests
         run: npm run qa:smoke
