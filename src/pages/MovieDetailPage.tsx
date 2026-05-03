@@ -74,6 +74,7 @@ export const MovieDetailPage = ({ myList, onToggleList }: MovieDetailPageProps) 
   if (loading) {
     return (
       <PageContainer className="pt-32 pb-16">
+        <h1 className="sr-only">Movie details</h1>
         <div className="flex min-h-[44vh] items-center justify-center rounded-xl border border-border bg-card/30">
           <StreamingLoader
             label="Movie"
@@ -87,6 +88,7 @@ export const MovieDetailPage = ({ myList, onToggleList }: MovieDetailPageProps) 
   if (!item) {
     return (
       <PageContainer className="pt-32 pb-16">
+        <h1 className="sr-only">Movie unavailable</h1>
         <EmptyState
           title="Movie unavailable"
           description={loadError ?? "This title is not available from the live catalog."}
