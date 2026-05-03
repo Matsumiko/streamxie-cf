@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { MagnifyingGlass, SortAscending, X } from "@phosphor-icons/react";
 import { Input } from "@/components/ui/input";
@@ -49,6 +49,7 @@ export const SearchPage = ({ myList, onToggleList }: SearchPageProps) => {
   const [activeGenres, setActiveGenres] = useState<string[]>([]);
   const [sort, setSort] = useState<SortOption>("relevance");
   const [showSortMenu, setShowSortMenu] = useState(false);
+  const sortMenuRef = useRef<HTMLDivElement | null>(null);
   const scopeLabel = getStreamSearchScopeLabel(scope);
 
   useDocumentMeta(
@@ -125,6 +126,31 @@ export const SearchPage = ({ myList, onToggleList }: SearchPageProps) => {
       mounted = false;
     };
   }, [initial, scope]);
+
+  useEffect(() => {
+    if (!showSortMenu) return;
+
+    const closeOnOutsidePress = (event: MouseEvent | PointerEvent) => {
+      const container = sortMenuRef.current;
+      if (!container) return;
+      if (!container.contains(event.target as Node)) {
+        setShowSortMenu(false);
+      }
+    };
+
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setShowSortMenu(false);
+      }
+    };
+
+    window.addEventListener("pointerdown", closeOnOutsidePress);
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      window.removeEventListener("pointerdown", closeOnOutsidePress);
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [showSortMenu]);
 
   const baseResults = useMemo(() => {
     if (!initial.trim()) return [];
@@ -301,7 +327,7 @@ export const SearchPage = ({ myList, onToggleList }: SearchPageProps) => {
                     Clear
                   </button>
                 )}
-                <div className="relative">
+                <div ref={sortMenuRef} className="relative">
                   <button
                     type="button"
                     onClick={() => setShowSortMenu((v) => !v)}
