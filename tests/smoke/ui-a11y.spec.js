@@ -296,6 +296,23 @@ test("series episode list tidak menyisakan kartu tersembunyi terlalu lama", asyn
   expect(hiddenCount, "Episode cards should finish fade-in quickly on series detail").toBe(0);
 });
 
+test("cast dan crew cards tampil penuh tanpa opacity rendah berkepanjangan", async ({ page }) => {
+  const route = "/series/tmdb--tv--202250";
+  const response = await page.goto(route, { waitUntil: "domcontentloaded" });
+  expect(response, `Navigation should return a response for ${route}`).not.toBeNull();
+  expect(response?.status(), `Expected HTTP 200 for ${route}`).toBe(200);
+
+  await page.waitForTimeout(1800);
+
+  const hiddenCount = await page.evaluate(() => {
+    const cards = Array.from(document.querySelectorAll("div[aria-label$='horizontal list'] > div"));
+    if (cards.length === 0) return 0;
+    return cards.filter((card) => Number.parseFloat(window.getComputedStyle(card).opacity) < 0.99).length;
+  });
+
+  expect(hiddenCount, "Cast/Crew cards should be fully visible shortly after render").toBe(0);
+});
+
 test("detail media navigation controls have touch-friendly size", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name.includes("mobile"), "Desktop-specific controls");
 

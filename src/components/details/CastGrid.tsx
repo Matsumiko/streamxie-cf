@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { MediaPlaceholder } from "@/components/common/MediaPlaceholder";
 import type { CastMember } from "@/types/content";
 
@@ -16,12 +15,9 @@ export const CastGrid = ({ cast, title = "Cast" }: { cast: CastMember[]; title?:
         tabIndex={0}
         aria-label={`${title} horizontal list`}
       >
-        {cast.map((member, i) => (
-          <motion.div
+        {cast.map((member) => (
+          <div
             key={`${member.name}-${member.role}`}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.08, duration: 0.4 }}
             className="group w-[180px] shrink-0 overflow-hidden rounded-xl border border-border bg-card transition-all duration-300 hover:border-primary/50 sm:w-[200px] lg:w-[224px] card-glow"
             style={{ scrollSnapAlign: "start" }}
           >
@@ -41,7 +37,7 @@ export const CastGrid = ({ cast, title = "Cast" }: { cast: CastMember[]; title?:
               <p className="truncate text-sm font-medium text-zinc-100">{member.name}</p>
               <p className="truncate text-xs text-zinc-300">{member.role}</p>
             </div>
-          </motion.div>
+          </div>
         ))}
       </div>
     </section>
