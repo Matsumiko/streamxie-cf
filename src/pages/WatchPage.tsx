@@ -106,7 +106,7 @@ export const WatchPage = ({ progressMap }: WatchPageProps) => {
 
     const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
     const attemptFetch = async () => {
-      const retries = [0, 1200, 2200];
+      const retries = [0, 800];
       let latest: StreamPlayback | null = null;
 
       for (let index = 0; index < retries.length; index += 1) {

@@ -606,6 +606,9 @@ const endpointToProxyPath = (endpoint: unknown) => {
   }
 };
 
+const PROVIDER_REQUEST_TIMEOUT_MS = 8_000;
+const TMDB_REQUEST_TIMEOUT_MS = 12_000;
+
 const fetchSameOriginJson = async (basePath: "/api/xie" | "/api/tmdb", proxyPath: string, query?: EndpointQuery) => {
   const normalizedPath = proxyPath.replace(/^\/+/, "");
   const url = new URL(normalizedPath ? `${basePath}/${normalizedPath}` : basePath, window.location.origin);
@@ -613,11 +616,26 @@ const fetchSameOriginJson = async (basePath: "/api/xie" | "/api/tmdb", proxyPath
     if (value !== undefined && value !== "") url.searchParams.set(key, String(value));
   });
 
-  const response = await fetch(url.toString(), {
-    headers: {
-      accept: "application/json",
-    },
-  });
+  const timeoutMs = basePath === "/api/xie" ? PROVIDER_REQUEST_TIMEOUT_MS : TMDB_REQUEST_TIMEOUT_MS;
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
+  let response: Response;
+
+  try {
+    response = await fetch(url.toString(), {
+      headers: {
+        accept: "application/json",
+      },
+      signal: controller.signal,
+    });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new Error(`streamXie API request timed out after ${timeoutMs}ms`);
+    }
+    throw error;
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
 
   if (!response.ok) {
     throw new Error(`streamXie API request failed with ${response.status}`);
