@@ -41,8 +41,8 @@ export const BrandLogo = ({
       <span className={cn("flex shrink-0 items-center justify-center", styles.mark, markClassName)}>
         <img
           src={brandLogoUrl}
-          alt=""
-          aria-hidden="true"
+          alt="Logo streamXie"
+          decoding="async"
           className="h-full w-full object-contain drop-shadow-[0_0_12px_hsl(var(--color-primary)/0.28)]"
         />
       </span>

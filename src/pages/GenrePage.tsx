@@ -13,7 +13,7 @@ type GenrePageProps = {
   onToggleList: (id: string) => void;
 };
 
-// Genre → accent colour mapping for the cinematic header
+// Pemetaan genre ke aksen warna untuk header sinematik
 const genreAccents: Record<string, string> = {
   "Sci-Fi": "from-cyan-500/30 to-blue-900/60",
   "Fantasy": "from-violet-500/30 to-indigo-900/60",
@@ -46,25 +46,26 @@ export const GenrePage = ({ myList, onToggleList }: GenrePageProps) => {
   useDocumentMeta(`${decodedName} | streamXie`, `Browse all ${decodedName} content on streamXie.`);
 
   const gradient = genreAccents[decodedName] ?? "from-primary/30 to-background";
-  // Use first matching item's backdrop for hero bg
+  // Gunakan backdrop item pertama yang cocok untuk latar hero
   const heroBg = filtered[0]?.backdropImage ?? null;
 
   return (
     <>
-      {/* Cinematic genre header */}
+      {/* Header genre sinematik */}
       <div className={`relative overflow-hidden pt-[72px]`} style={{ minHeight: 280 }}>
-        {/* Backdrop image layer */}
+        {/* Lapisan gambar backdrop */}
         {heroBg && (
           <img
             src={heroBg}
-            alt=""
-            aria-hidden="true"
+            alt={`Backdrop genre ${decodedName}`}
+            loading="lazy"
+            decoding="async"
             className="absolute inset-0 h-full w-full object-cover object-center opacity-20"
           />
         )}
-        {/* Color tint overlay */}
+        {/* Lapisan tint warna */}
         <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-70`} />
-        {/* Bottom fade to background */}
+        {/* Fade bawah ke warna latar */}
         <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-transparent to-background" />
 
         <PageContainer className="relative pb-12 pt-12">

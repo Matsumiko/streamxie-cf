@@ -967,8 +967,8 @@ const tmdbMediaGallery = (raw: Record<string, unknown>, title: string): TmdbMedi
 
   return [
     ...fromRows(images.backdrops, "backdrop", "w780", 10),
-    ...fromRows(images.posters, "poster", "w500", 8),
-    ...fromRows(images.logos, "logo", "w500", 4),
+    ...fromRows(images.posters, "poster", "w342", 8),
+    ...fromRows(images.logos, "logo", "w300", 4),
   ];
 };
 
@@ -984,8 +984,8 @@ const tmdbCollectionSummary = (raw: Record<string, unknown>): TmdbCollectionSumm
     id,
     title,
     description: firstString(collection.overview, `${title} collection`),
-    posterImage: tmdbImage(collection.poster_path, "w500", ""),
-    backdropImage: tmdbImage(collection.backdrop_path, "w1280", ""),
+    posterImage: tmdbImage(collection.poster_path, "w342", ""),
+    backdropImage: tmdbImage(collection.backdrop_path, "w780", ""),
   };
 };
 
@@ -1059,8 +1059,8 @@ const normalizeTmdbItem = (
     fallback.country,
   );
   const genres = tmdbGenres(raw, genreMap, fallback);
-  const poster = tmdbImage(raw.poster_path, "w500", fallback.posterImage);
-  const backdrop = tmdbImage(raw.backdrop_path, "w1280", poster || fallback.backdropImage);
+  const poster = tmdbImage(raw.poster_path, "w342", fallback.posterImage);
+  const backdrop = tmdbImage(raw.backdrop_path, "w780", poster || fallback.backdropImage);
   const status = firstString(raw.status, releaseDate && Date.parse(releaseDate) > Date.now() ? "Upcoming" : "Released");
 
   return {

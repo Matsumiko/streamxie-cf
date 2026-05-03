@@ -404,7 +404,9 @@ export const Navbar = ({ onOpenCommand }: NavbarProps) => {
               >
                 <img
                   src={avatar.image}
-                  alt=""
+                  alt={`Avatar ${avatar.label}`}
+                  loading="lazy"
+                  decoding="async"
                   className="h-full w-full object-cover"
                   style={{ objectPosition: avatar.objectPosition }}
                 />
@@ -571,7 +573,9 @@ export const Navbar = ({ onOpenCommand }: NavbarProps) => {
                   <span className="h-6 w-6 overflow-hidden rounded-full bg-card ring-1 ring-border">
                     <img
                       src={avatar.image}
-                      alt=""
+                      alt={`Avatar ${avatar.label}`}
+                      loading="lazy"
+                      decoding="async"
                       className="h-full w-full object-cover"
                       style={{ objectPosition: avatar.objectPosition }}
                     />

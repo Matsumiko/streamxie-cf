@@ -21,8 +21,8 @@ export const BrowsePage = ({ myList, onToggleList }: BrowsePageProps) => {
   const { items: catalogItems, loading, source } = useStreamCatalog();
 
   useDocumentMeta(
-    "Browse | streamXie",
-    "Filter and explore streamXie&#39;s movie, series, anime, drama, and variety catalog.",
+    "Jelajah Film, Series, Drama & Anime | streamXie",
+    "Jelajahi katalog film, series, anime, dan drama di streamXie dengan filter genre dan tahun yang cepat untuk menemukan tontonan berikutnya dalam hitungan detik.",
   );
   const location = useLocation();
   const navigate = useNavigate();
@@ -83,7 +83,7 @@ export const BrowsePage = ({ myList, onToggleList }: BrowsePageProps) => {
 
   return (
     <PageContainer className="pt-32 pb-16">
-      <h1 className="sr-only">Browse catalog</h1>
+      <h1 className="sr-only">Jelajahi film, series, anime, dan drama di streamXie</h1>
       <SectionHeader
         title="Browse"
         subtitle={`${filtered.length} title${filtered.length !== 1 ? "s" : ""} ${source === "live" ? "from TMDB metadata" : "found"}`}
