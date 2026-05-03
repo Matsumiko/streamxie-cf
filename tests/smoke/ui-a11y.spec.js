@@ -236,6 +236,32 @@ test("watch source controls have touch-friendly size", async ({ page }) => {
   expect(box?.height ?? 0, "Watch source button height should be >= 40px").toBeGreaterThanOrEqual(40);
 });
 
+test("tombol sumber stream bisa diaktifkan dengan tombol Space saat fokus keyboard", async ({ page }) => {
+  const route = "/watch/tmdb--movie--1007757";
+  const response = await page.goto(route, { waitUntil: "domcontentloaded" });
+  expect(response, `Navigation should return a response for ${route}`).not.toBeNull();
+  expect(response?.status(), `Expected HTTP 200 for ${route}`).toBe(200);
+
+  await page.waitForTimeout(1200);
+
+  const sourceButtons = page.locator("main details[open] button");
+  if ((await sourceButtons.count()) < 2) {
+    return;
+  }
+
+  const firstButton = sourceButtons.nth(0);
+  const secondButton = sourceButtons.nth(1);
+  const firstClass = (await firstButton.getAttribute("class")) || "";
+  const targetButton = /border-primary\/60/.test(firstClass) ? secondButton : firstButton;
+
+  await expect(targetButton).toBeVisible();
+  await expect(targetButton).not.toHaveClass(/border-primary\/60/);
+  await targetButton.focus();
+  await page.keyboard.press("Space");
+  await page.waitForTimeout(400);
+  await expect(targetButton).toHaveClass(/border-primary\/60/);
+});
+
 test("browse filter toggle has touch-friendly size", async ({ page }) => {
   const route = "/browse";
   const response = await page.goto(route, { waitUntil: "domcontentloaded" });

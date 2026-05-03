@@ -47,6 +47,22 @@ type SourceGroup = {
 const isNativeStreamUrl = (value?: string | null) =>
   Boolean(value && /\.(mp4|webm|ogg|m3u8)(\?|$)/i.test(value));
 
+const isTargetInteraktif = (target: EventTarget | null) => {
+  if (!(target instanceof HTMLElement)) return false;
+  if (target.isContentEditable) return true;
+
+  const tagName = target.tagName;
+  if (["INPUT", "TEXTAREA", "SELECT", "BUTTON", "A", "SUMMARY"].includes(tagName)) {
+    return true;
+  }
+
+  return Boolean(
+    target.closest(
+      "[role='button'], [role='link'], [role='menuitem'], [role='tab'], [contenteditable='true']",
+    ),
+  );
+};
+
 const normalizeServerLabel = (value: string, index: number) => {
   const cleaned = value
     .replace(/^[^-]+ -\s*/, "")
@@ -247,17 +263,21 @@ export const VideoPlayer = ({
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement)?.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA") return;
-      if (e.key === " ") { e.preventDefault(); togglePlay(); }
+      if (isTargetInteraktif(e.target)) return;
+      if (e.key === " " && videoRef.current) { e.preventDefault(); togglePlay(); }
       if (e.key === "ArrowRight" && videoRef.current) { videoRef.current.currentTime += 10; resetHideTimer(); }
       if (e.key === "ArrowLeft" && videoRef.current) { videoRef.current.currentTime -= 10; resetHideTimer(); }
-      if (e.key.toLowerCase() === "m") toggleMute();
-      if (e.key.toLowerCase() === "f") toggleFullscreen();
+      if (e.key.toLowerCase() === "m" && videoRef.current) toggleMute();
+      if (e.key.toLowerCase() === "f" && videoRef.current) toggleFullscreen();
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   });
+
+  useEffect(() => () => {
+    if (hideTimer.current) window.clearTimeout(hideTimer.current);
+    if (autoplayTimerRef.current) window.clearInterval(autoplayTimerRef.current);
+  }, []);
 
   useEffect(() => {
     const onFsChange = () => setIsFullscreen(!!document.fullscreenElement);
