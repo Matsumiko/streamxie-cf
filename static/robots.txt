@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /profile
+Disallow: /my-list
+Disallow: /search
+
+Sitemap: https://streamxie.pages.dev/sitemap.xml
