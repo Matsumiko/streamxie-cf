@@ -22,7 +22,7 @@ export const TopRankCard = ({ item, rank }: TopRankCardProps) => {
       {/* Rank */}
       <div className="flex w-14 shrink-0 items-end justify-center pb-3">
         <span
-          className={`text-[3.5rem] font-black leading-none tracking-tighter ${isTop3 ? "text-gradient-primary" : "text-muted-foreground/40"}`}
+          className={`text-[3.5rem] font-black leading-none tracking-tighter ${isTop3 ? "text-gradient-primary" : "text-muted-foreground/60"}`}
         >
           {rank}
         </span>

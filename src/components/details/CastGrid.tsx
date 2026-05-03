@@ -38,8 +38,8 @@ export const CastGrid = ({ cast, title = "Cast" }: { cast: CastMember[]; title?:
               )}
             </div>
             <div className="p-3">
-              <p className="truncate text-sm font-medium text-foreground">{member.name}</p>
-              <p className="truncate text-xs text-muted-foreground">{member.role}</p>
+              <p className="truncate text-sm font-medium text-zinc-100">{member.name}</p>
+              <p className="truncate text-xs text-zinc-300">{member.role}</p>
             </div>
           </motion.div>
         ))}
