@@ -449,3 +449,38 @@ test("route kritikal memiliki heading level satu", async ({ page }) => {
     await expect(h1, `Route ${route} should expose exactly one h1`).toHaveCount(1);
   }
 });
+
+test("badge PRO di profile memenuhi kontras minimum", async ({ page }) => {
+  const route = "/profile";
+  const response = await page.goto(route, { waitUntil: "domcontentloaded" });
+  expect(response, `Navigation should return a response for ${route}`).not.toBeNull();
+  expect(response?.status(), `Expected HTTP 200 for ${route}`).toBe(200);
+
+  const badge = page.locator("span", { hasText: /^PRO$/ }).first();
+  await expect(badge).toBeVisible();
+
+  const contrast = await badge.evaluate((el) => {
+    const toRgb = (value) => {
+      const matched = value.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+      if (!matched) return { r: 0, g: 0, b: 0 };
+      return { r: Number(matched[1]), g: Number(matched[2]), b: Number(matched[3]) };
+    };
+    const toLinear = (channel) => {
+      const normalized = channel / 255;
+      return normalized <= 0.03928
+        ? normalized / 12.92
+        : ((normalized + 0.055) / 1.055) ** 2.4;
+    };
+    const luminance = ({ r, g, b }) => 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b);
+
+    const style = window.getComputedStyle(el);
+    const fg = toRgb(style.color);
+    const bg = toRgb(style.backgroundColor);
+    const l1 = luminance(fg);
+    const l2 = luminance(bg);
+    const [light, dark] = l1 >= l2 ? [l1, l2] : [l2, l1];
+    return (light + 0.05) / (dark + 0.05);
+  });
+
+  expect(contrast, "Kontras badge PRO harus >= 4.5:1").toBeGreaterThanOrEqual(4.5);
+});

@@ -88,7 +88,7 @@ export const ProfilePage = () => {
                 <span className="text-xs font-medium text-white">Edit</span>
               </div>
             </button>
-            <span className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+            <span className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-background">
               PRO
             </span>
           </div>
