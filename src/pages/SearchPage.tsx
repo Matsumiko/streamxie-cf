@@ -157,6 +157,12 @@ export const SearchPage = ({ myList, onToggleList }: SearchPageProps) => {
     return liveResults ?? [];
   }, [initial, liveResults]);
 
+  useEffect(() => {
+    if (!initial || baseResults.length === 0) {
+      setShowSortMenu(false);
+    }
+  }, [initial, baseResults.length]);
+
   const results = useMemo(() => {
     let filtered = baseResults;
 
@@ -197,6 +203,7 @@ export const SearchPage = ({ myList, onToggleList }: SearchPageProps) => {
 
   const onSubmit = (event: FormEvent) => {
     event.preventDefault();
+    setShowSortMenu(false);
     setActiveGenres([]);
     saveSearchTerm(query);
     setParams(withScopeParams(query));
