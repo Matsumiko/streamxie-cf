@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
 import { Envelope, CheckCircle } from "@phosphor-icons/react";
 import { BrandLogo } from "@/components/common/BrandLogo";
 import { useDocumentMeta } from "@/hooks/useDocumentMeta";
@@ -23,30 +22,16 @@ export const ForgotPasswordPage = () => {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4">
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -left-40 -top-40 h-96 w-96 rounded-full bg-primary/10 blur-[120px]" />
-        <div className="absolute -bottom-32 -right-32 h-80 w-80 rounded-full bg-primary/8 blur-[100px]" />
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45 }}
-        className="relative z-10 w-full max-w-md"
-      >
+      <div className="relative z-10 w-full max-w-md">
         <div className="mb-8 flex flex-col items-center gap-3">
           <Link to="/" className="text-foreground transition-colors hover:text-primary">
             <BrandLogo size="md" />
           </Link>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card/80 p-8 shadow-2xl backdrop-blur-xl">
+        <div className="rounded-2xl border border-border bg-card p-8 shadow-2xl">
           {submitted ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="flex flex-col items-center gap-4 text-center py-4"
-            >
+            <div className="flex flex-col items-center gap-4 py-4 text-center">
               <div className="flex h-14 w-14 items-center justify-center rounded-full bg-green-950/60 border border-green-700/40">
                 <CheckCircle size={28} weight="fill" className="text-green-400" />
               </div>
@@ -61,7 +46,7 @@ export const ForgotPasswordPage = () => {
               >
                 Back to sign in
               </Link>
-            </motion.div>
+            </div>
           ) : (
             <>
               <h1 className="mb-2 text-center text-2xl font-semibold tracking-tight text-foreground">Forgot password?</h1>
@@ -102,7 +87,7 @@ export const ForgotPasswordPage = () => {
             </>
           )}
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };

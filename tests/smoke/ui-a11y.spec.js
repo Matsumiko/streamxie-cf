@@ -490,6 +490,7 @@ test("badge PRO di profile memenuhi kontras minimum", async ({ page }) => {
 test("konten auth dan privacy tidak diawali opacity rendah", async ({ page }) => {
   const checks = [
     { route: "/login", selectors: ["h1", "#email", "#password"] },
+    { route: "/forgot-password", selectors: ["h1", "#fp-email"] },
     { route: "/privacy", selectors: ["main h1", "main .group:nth-child(1) h2", "main .group:nth-child(1) p"] },
   ];
 
