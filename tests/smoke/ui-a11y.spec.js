@@ -13,6 +13,8 @@ const ROUTES = [
   "/forgot-password",
   "/reset-password",
   "/streamxie1",
+  "/streamxie2",
+  "/streamxie3",
 ];
 
 for (const route of ROUTES) {
@@ -438,7 +440,7 @@ test("watch page memiliki heading level satu untuk struktur dokumen", async ({ p
 });
 
 test("route kritikal memiliki heading level satu", async ({ page }) => {
-  const routes = ["/browse", "/series/tmdb--tv--202250", "/streamxie1"];
+  const routes = ["/browse", "/series/tmdb--tv--202250", "/streamxie1", "/streamxie2", "/streamxie3"];
 
   for (const route of routes) {
     const response = await page.goto(route, { waitUntil: "domcontentloaded" });

@@ -8,6 +8,8 @@ const ROUTES = [
   "/my-list",
   "/privacy",
   "/streamxie1",
+  "/streamxie2",
+  "/streamxie3",
 ];
 
 const IGNORED_CONSOLE_ERRORS = [
