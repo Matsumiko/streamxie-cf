@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import {
   BookmarkSimple,
   CaretDown,
@@ -589,8 +589,30 @@ export const Navbar = ({ onOpenCommand }: NavbarProps) => {
 
 export const MobileNavMenu = () => {
   const location = useLocation();
-  const scope = getStreamxieScopeFromPath(location.pathname);
+  const [searchParams] = useSearchParams();
+  const scopeFromPath = getStreamxieScopeFromPath(location.pathname);
+  const scopeFromQuery = searchParams.get("scope");
+  const scope = scopeFromQuery === "streamxie1" || scopeFromQuery === "streamxie2" || scopeFromQuery === "streamxie3"
+    ? scopeFromQuery
+    : scopeFromPath;
   const searchHref = scope === "tmdb" ? "/search" : `/search?scope=${scope}`;
+  const routeSearchParams = new URLSearchParams(location.search);
+
+  const isItemActive = (href: string) => {
+    const [path, query] = href.split("?");
+    if (location.pathname !== path) {
+      if (href !== "/" && !query && location.pathname.startsWith(path)) return true;
+      return false;
+    }
+
+    if (!query) return true;
+
+    const expectedParams = new URLSearchParams(query);
+    for (const [key, value] of expectedParams.entries()) {
+      if (routeSearchParams.get(key) !== value) return false;
+    }
+    return true;
+  };
 
   const items = [
     { label: "Home", href: "/", icon: House },
@@ -608,7 +630,7 @@ export const MobileNavMenu = () => {
       <div className="grid grid-cols-5">
         {items.map((item) => {
           const Icon = item.icon;
-          const active = location.pathname === item.href || (item.href !== "/" && location.pathname.startsWith(item.href));
+          const active = isItemActive(item.href);
           return (
             <Link
               key={item.label}

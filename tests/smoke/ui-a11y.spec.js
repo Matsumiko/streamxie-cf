@@ -297,6 +297,23 @@ test("mobile bottom navigation terdaftar sebagai landmark nav", async ({ page },
   await expect(bottomNav.getByRole("link", { name: "Search" })).toBeVisible();
 });
 
+test("search scope mobile tetap mempertahankan provider context", async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.name.includes("mobile"), "Mobile-specific control");
+
+  const route = "/search?scope=streamxie1&q=avatar";
+  const response = await page.goto(route, { waitUntil: "domcontentloaded" });
+  expect(response, `Navigation should return a response for ${route}`).not.toBeNull();
+  expect(response?.status(), `Expected HTTP 200 for ${route}`).toBe(200);
+
+  const bottomNav = page.locator("nav[aria-label='Navigasi bawah']");
+  await expect(bottomNav).toBeVisible();
+
+  const searchLink = bottomNav.getByRole("link", { name: "Search" });
+  await expect(searchLink).toBeVisible();
+  await expect(searchLink).toHaveAttribute("href", "/search?scope=streamxie1");
+  await expect(searchLink).toHaveClass(/text-primary/);
+});
+
 test("detail synopsis and season controls have touch-friendly size", async ({ page }) => {
   const movieRoute = "/movie/tmdb--movie--1007757";
   const movieResponse = await page.goto(movieRoute, { waitUntil: "domcontentloaded" });
