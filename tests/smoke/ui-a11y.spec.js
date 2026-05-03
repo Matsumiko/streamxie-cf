@@ -274,9 +274,26 @@ test("detail synopsis and season controls have touch-friendly size", async ({ pa
     return;
   }
   await expect(seasonTrigger).toBeVisible();
+  await expect(seasonTrigger).toHaveAccessibleName(/season/i);
   const seasonBox = await seasonTrigger.boundingBox();
   expect(seasonBox, "Season trigger bounding box should exist").not.toBeNull();
   expect(seasonBox?.height ?? 0, "Season trigger height should be >= 40px").toBeGreaterThanOrEqual(40);
+});
+
+test("series episode list tidak menyisakan kartu tersembunyi terlalu lama", async ({ page }) => {
+  const route = "/series/tmdb--tv--202250";
+  const response = await page.goto(route, { waitUntil: "domcontentloaded" });
+  expect(response, `Navigation should return a response for ${route}`).not.toBeNull();
+  expect(response?.status(), `Expected HTTP 200 for ${route}`).toBe(200);
+
+  await page.waitForTimeout(2200);
+
+  const hiddenCount = await page.evaluate(() => {
+    const cards = Array.from(document.querySelectorAll("section .group.flex.gap-4.rounded-xl.border"));
+    return cards.filter((card) => Number.parseFloat(window.getComputedStyle(card).opacity) < 0.99).length;
+  });
+
+  expect(hiddenCount, "Episode cards should finish fade-in quickly on series detail").toBe(0);
 });
 
 test("detail media navigation controls have touch-friendly size", async ({ page }, testInfo) => {

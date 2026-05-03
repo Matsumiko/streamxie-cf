@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { Play } from "@phosphor-icons/react";
-import { motion } from "framer-motion";
 import { MediaPlaceholder } from "@/components/common/MediaPlaceholder";
 import type { Season } from "@/types/content";
 import { getWatchProgress } from "@/lib/storage";
@@ -15,11 +14,8 @@ export const EpisodeList = ({ season, contentId }: { season: Season; contentId: 
       </h2>
       <div className="space-y-3">
         {season.episodes.map((episode, index) => (
-          <motion.div
+          <div
             key={episode.id}
-            initial={{ opacity: 0, x: -12 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: index * 0.06, duration: 0.35 }}
             className="group flex gap-4 rounded-xl border border-border bg-card p-3 transition-all duration-300 hover:border-primary/50 card-glow"
           >
             {/* Thumbnail */}
@@ -61,7 +57,7 @@ export const EpisodeList = ({ season, contentId }: { season: Season; contentId: 
                 <Play size={16} weight="fill" />
               </Link>
             </div>
-          </motion.div>
+          </div>
         ))}
       </div>
     </section>

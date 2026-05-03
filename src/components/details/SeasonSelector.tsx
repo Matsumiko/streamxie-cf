@@ -18,11 +18,17 @@ export const SeasonSelector = ({
   selectedSeasonId,
   onSelect,
 }: SeasonSelectorProps) => {
+  const seasonLabelId = "season-selector-label";
+
   return (
     <div className="max-w-xs">
-      <label className="mb-2 block text-sm text-muted-foreground">Season</label>
+      <label id={seasonLabelId} className="mb-2 block text-sm text-muted-foreground">Season</label>
       <Select value={selectedSeasonId} onValueChange={onSelect}>
-        <SelectTrigger className="h-10 border-border bg-input text-foreground">
+        <SelectTrigger
+          aria-labelledby={seasonLabelId}
+          aria-label="Select season"
+          className="h-10 border-border bg-input text-foreground"
+        >
           <SelectValue placeholder="Select season" />
         </SelectTrigger>
         <SelectContent className="border-border bg-card text-card-foreground">
