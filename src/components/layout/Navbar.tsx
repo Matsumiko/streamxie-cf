@@ -601,7 +601,10 @@ export const MobileNavMenu = () => {
   ];
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 backdrop-blur-md md:hidden">
+    <nav
+      aria-label="Navigasi bawah"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 backdrop-blur-md md:hidden"
+    >
       <div className="grid grid-cols-5">
         {items.map((item) => {
           const Icon = item.icon;
@@ -619,7 +622,7 @@ export const MobileNavMenu = () => {
           );
         })}
       </div>
-    </div>
+    </nav>
   );
 };
 

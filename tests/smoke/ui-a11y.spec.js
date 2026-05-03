@@ -275,6 +275,20 @@ test("browse filter toggle has touch-friendly size", async ({ page }) => {
   expect(box?.height ?? 0, "Browse filter toggle height should be >= 40px").toBeGreaterThanOrEqual(40);
 });
 
+test("mobile bottom navigation terdaftar sebagai landmark nav", async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.name.includes("mobile"), "Mobile-specific control");
+
+  const route = "/search?q=avatar";
+  const response = await page.goto(route, { waitUntil: "domcontentloaded" });
+  expect(response, `Navigation should return a response for ${route}`).not.toBeNull();
+  expect(response?.status(), `Expected HTTP 200 for ${route}`).toBe(200);
+
+  const bottomNav = page.locator("nav[aria-label='Navigasi bawah']");
+  await expect(bottomNav).toBeVisible();
+  await expect(bottomNav.getByRole("link", { name: "Home" })).toBeVisible();
+  await expect(bottomNav.getByRole("link", { name: "Search" })).toBeVisible();
+});
+
 test("detail synopsis and season controls have touch-friendly size", async ({ page }) => {
   const movieRoute = "/movie/tmdb--movie--1007757";
   const movieResponse = await page.goto(movieRoute, { waitUntil: "domcontentloaded" });
