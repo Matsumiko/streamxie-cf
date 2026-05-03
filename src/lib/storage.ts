@@ -81,6 +81,25 @@ const emitWatchProgressUpdated = () => {
   window.dispatchEvent(new Event(WATCH_PROGRESS_UPDATED_EVENT));
 };
 
+const normalizeSearchTerm = (term: string) => term.trim();
+
+const sanitizeSearchHistory = (raw: unknown): string[] => {
+  if (!Array.isArray(raw)) return [];
+
+  const dedup = new Set<string>();
+  const cleaned: string[] = [];
+  for (const item of raw) {
+    if (typeof item !== "string") continue;
+    const normalized = normalizeSearchTerm(item);
+    if (!normalized) continue;
+    const key = normalized.toLowerCase();
+    if (dedup.has(key)) continue;
+    dedup.add(key);
+    cleaned.push(normalized);
+  }
+  return cleaned.slice(0, 6);
+};
+
 export const getMyList = (): string[] => {
   try {
     migrateStorage();
@@ -128,17 +147,27 @@ export const getSearchHistory = (): string[] => {
   try {
     migrateStorage();
     const raw = localStorage.getItem(SEARCH_HISTORY_KEY);
-    return raw ? JSON.parse(raw) : [];
+    const parsed = raw ? JSON.parse(raw) : [];
+    const cleaned = sanitizeSearchHistory(parsed);
+    if (JSON.stringify(parsed) !== JSON.stringify(cleaned)) {
+      localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(cleaned));
+    }
+    return cleaned;
   } catch {
     return [];
   }
 };
 
 export const saveSearchTerm = (term: string) => {
+  const normalizedTerm = normalizeSearchTerm(term);
+  if (!normalizedTerm) {
+    return getSearchHistory();
+  }
+
   const current = getSearchHistory().filter(
-    (item) => item.toLowerCase() !== term.toLowerCase(),
+    (item) => item.toLowerCase() !== normalizedTerm.toLowerCase(),
   );
-  const next = [term, ...current].slice(0, 6);
+  const next = [normalizedTerm, ...current].slice(0, 6);
   localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(next));
   enqueueAccountPatch({ searchHistory: next });
   return next;
