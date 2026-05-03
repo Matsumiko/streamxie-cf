@@ -425,3 +425,14 @@ test("detail cast carousel is keyboard-focusable", async ({ page }) => {
 
   await expect(scroller).toHaveAttribute("tabindex", "0");
 });
+
+test("watch page memiliki heading level satu untuk struktur dokumen", async ({ page }) => {
+  const route = "/watch/tmdb--movie--1007757";
+  const response = await page.goto(route, { waitUntil: "domcontentloaded" });
+  expect(response, `Navigation should return a response for ${route}`).not.toBeNull();
+  expect(response?.status(), `Expected HTTP 200 for ${route}`).toBe(200);
+
+  const heading = page.locator("main h1").first();
+  await expect(heading).toHaveCount(1);
+  await expect(heading).toContainText(/watch/i);
+});

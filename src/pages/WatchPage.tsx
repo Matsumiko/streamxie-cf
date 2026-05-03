@@ -258,6 +258,7 @@ export const WatchPage = ({ progressMap }: WatchPageProps) => {
   if (loading) {
     return (
       <PageContainer className="pt-28 pb-16">
+        <h1 className="sr-only">Watch loading</h1>
         <div className="grid gap-8 xl:grid-cols-[1fr_340px]">
           <div className="overflow-hidden rounded-xl border border-border bg-background">
             <div className="relative aspect-video bg-black">
@@ -278,6 +279,7 @@ export const WatchPage = ({ progressMap }: WatchPageProps) => {
   if (!item) {
     return (
       <PageContainer className="pt-32 pb-16">
+        <h1 className="sr-only">Watch unavailable</h1>
         <EmptyState
           title="Watch unavailable"
           description={loadError ?? "This title is not available from the live catalog."}
@@ -290,6 +292,7 @@ export const WatchPage = ({ progressMap }: WatchPageProps) => {
 
   return (
     <PageContainer className="pt-28 pb-16">
+      <h1 className="sr-only">Watch {item.title}</h1>
       <div className="grid min-w-0 gap-8 xl:grid-cols-[1fr_340px]">
         {/* Main column */}
         <div className="min-w-0 space-y-6">
