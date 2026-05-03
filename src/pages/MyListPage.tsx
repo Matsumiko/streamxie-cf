@@ -137,6 +137,7 @@ export const MyListPage = ({ myList, onToggleList, progressMap }: MyListPageProp
 
         {/* ── Favorites ── */}
         <TabsContent value="favorites">
+          <h2 className="sr-only">Saved titles</h2>
           {favorites.length > 0 ? (
             <motion.div
               initial={{ opacity: 0 }}
@@ -169,6 +170,7 @@ export const MyListPage = ({ myList, onToggleList, progressMap }: MyListPageProp
 
         {/* ── Continue Watching ── */}
         <TabsContent value="continue">
+          <h2 className="sr-only">Continue watching</h2>
           {continueWatching.length > 0 ? (
             <motion.div
               initial={{ opacity: 0 }}
@@ -195,6 +197,7 @@ export const MyListPage = ({ myList, onToggleList, progressMap }: MyListPageProp
 
         {/* ── History ── */}
         <TabsContent value="history">
+          <h2 className="sr-only">Watch history</h2>
           {history.length > 0 ? (
             <motion.div
               initial={{ opacity: 0 }}

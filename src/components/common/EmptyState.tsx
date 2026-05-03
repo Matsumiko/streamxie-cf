@@ -14,7 +14,7 @@ export const EmptyState = ({ title, description, actionLabel, actionHref }: Empt
       <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full border border-border bg-muted text-primary">
         <FilmStrip size={48} weight="duotone" />
       </div>
-      <h3 className="text-2xl font-medium text-foreground">{title}</h3>
+      <h2 className="text-2xl font-medium text-foreground">{title}</h2>
       <p className="mt-3 max-w-md text-sm text-muted-foreground md:text-base">{description}</p>
       {actionLabel && actionHref && (
         <Link

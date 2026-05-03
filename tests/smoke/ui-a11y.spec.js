@@ -436,3 +436,16 @@ test("watch page memiliki heading level satu untuk struktur dokumen", async ({ p
   await expect(heading).toHaveCount(1);
   await expect(heading).toContainText(/watch/i);
 });
+
+test("route kritikal memiliki heading level satu", async ({ page }) => {
+  const routes = ["/browse", "/series/tmdb--tv--202250", "/streamxie1"];
+
+  for (const route of routes) {
+    const response = await page.goto(route, { waitUntil: "domcontentloaded" });
+    expect(response, `Navigation should return a response for ${route}`).not.toBeNull();
+    expect(response?.status(), `Expected HTTP 200 for ${route}`).toBe(200);
+
+    const h1 = page.locator("main h1");
+    await expect(h1, `Route ${route} should expose exactly one h1`).toHaveCount(1);
+  }
+});

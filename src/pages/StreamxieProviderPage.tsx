@@ -103,6 +103,7 @@ export const StreamxieProviderPage = ({
   if (!pageConfig) {
     return (
       <PageContainer className="pt-32 pb-16">
+        <h1 className="sr-only">Provider unavailable</h1>
         <EmptyState
           title="Provider unavailable"
           description="This streamxie provider page is not registered."
@@ -115,6 +116,7 @@ export const StreamxieProviderPage = ({
 
   return (
     <PageContainer className="pt-32 pb-16">
+      <h1 className="sr-only">{pageConfig.label}</h1>
       <SectionHeader title={pageConfig.label} subtitle={subtitle} />
 
       {state.loading ? (

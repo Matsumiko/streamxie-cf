@@ -83,6 +83,7 @@ export const BrowsePage = ({ myList, onToggleList }: BrowsePageProps) => {
 
   return (
     <PageContainer className="pt-32 pb-16">
+      <h1 className="sr-only">Browse catalog</h1>
       <SectionHeader
         title="Browse"
         subtitle={`${filtered.length} title${filtered.length !== 1 ? "s" : ""} ${source === "live" ? "from TMDB metadata" : "found"}`}

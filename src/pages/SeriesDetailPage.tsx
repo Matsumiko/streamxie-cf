@@ -83,6 +83,7 @@ export const SeriesDetailPage = ({ myList, onToggleList }: SeriesDetailPageProps
   if (loading) {
     return (
       <PageContainer className="pt-32 pb-16">
+        <h1 className="sr-only">Series loading</h1>
         <div className="flex min-h-[44vh] items-center justify-center rounded-xl border border-border bg-card/30">
           <StreamingLoader
             label="Series"
@@ -96,6 +97,7 @@ export const SeriesDetailPage = ({ myList, onToggleList }: SeriesDetailPageProps
   if (!item) {
     return (
       <PageContainer className="pt-32 pb-16">
+        <h1 className="sr-only">Series unavailable</h1>
         <EmptyState
           title="Series unavailable"
           description={loadError ?? "This title is not available from the live catalog."}
