@@ -8,6 +8,7 @@ import {
   toggleMyList,
   WATCH_PROGRESS_UPDATED_EVENT,
 } from "@/lib/storage";
+import { STREAM_SECTION_ROUTES } from "@/lib/streamxie";
 import { toast } from "@/hooks/use-toast";
 
 const HomePage = lazy(() =>
@@ -60,6 +61,9 @@ const ForgotPasswordPage = lazy(() =>
 );
 const ResetPasswordPage = lazy(() =>
   import("@/pages/ResetPasswordPage").then((module) => ({ default: module.ResetPasswordPage })),
+);
+const NotFoundPage = lazy(() =>
+  import("@/pages/NotFoundPage").then((module) => ({ default: module.NotFoundPage })),
 );
 const CommandPalette = lazy(() =>
   import("@/components/common/CommandPalette").then((module) => ({ default: module.CommandPalette })),
@@ -245,12 +249,14 @@ const AppRoutes = () => {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
-            <Route
-              path="/:sectionSlug"
-              element={
-                <CollectionPage myList={myList} onToggleList={handleToggleList} />
-              }
-            />
+            {STREAM_SECTION_ROUTES.map((route) => (
+              <Route
+                key={route.slug}
+                path={`/${route.slug}`}
+                element={<CollectionPage myList={myList} onToggleList={handleToggleList} />}
+              />
+            ))}
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>
       </AppLayout>

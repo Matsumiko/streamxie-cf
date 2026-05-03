@@ -1,0 +1,49 @@
+/robots.txt /robots.txt 200
+/sitemap.xml /sitemap.xml 200
+/google58f551ed044822f9.html /google58f551ed044822f9.html 200
+/404 /404.html 404
+
+/ / 200
+/browse / 200
+/search / 200
+/movie/* / 200
+/series/* / 200
+/watch/* / 200
+/my-list / 200
+/profile / 200
+/genre/* / 200
+
+/streamxie1 / 200
+/streamxie2 / 200
+/streamxie3 / 200
+/streamxie1/* / 200
+/streamxie2/* / 200
+/streamxie3/* / 200
+
+/privacy / 200
+/terms / 200
+/cookies / 200
+/about / 200
+/streaming-tips / 200
+/login / 200
+/register / 200
+/forgot-password / 200
+/reset-password / 200
+
+/trending-today / 200
+/trending-this-week / 200
+/trending-movies / 200
+/trending-series / 200
+/popular-movies / 200
+/popular-series / 200
+/top-rated-movies / 200
+/top-rated-series / 200
+/now-playing / 200
+/upcoming-movies / 200
+/airing-today / 200
+/on-the-air / 200
+/action-movies / 200
+/comedy-movies / 200
+/netflix-series / 200
+
+/* /404.html 404
