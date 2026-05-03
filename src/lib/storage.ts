@@ -9,6 +9,8 @@ export type WatchProgressEntry = {
   updatedAt: number;
 };
 
+export const WATCH_PROGRESS_UPDATED_EVENT = "streamxie:watch-progress-updated";
+
 const MY_LIST_KEY = "streamxie-my-list";
 const WATCH_PROGRESS_KEY = "streamxie-watch-progress";
 const SEARCH_HISTORY_KEY = "streamxie-search-history";
@@ -74,6 +76,11 @@ const enqueueAccountPatch = (patch: Partial<AccountStateSnapshot>) => {
   }, 1200);
 };
 
+const emitWatchProgressUpdated = () => {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new Event(WATCH_PROGRESS_UPDATED_EVENT));
+};
+
 export const getMyList = (): string[] => {
   try {
     migrateStorage();
@@ -108,6 +115,7 @@ export const saveWatchProgress = (entry: WatchProgressEntry) => {
   const current = getWatchProgress();
   current[entry.contentId] = entry;
   localStorage.setItem(WATCH_PROGRESS_KEY, JSON.stringify(current));
+  emitWatchProgressUpdated();
   const now = Date.now();
   const shouldSync = now - lastWatchSyncAt > 15_000 || entry.progress >= 98;
   if (shouldSync) {
@@ -150,7 +158,10 @@ export const getLocalAccountSnapshot = (): AccountStateSnapshot => {
 export const applyAccountSnapshot = (snapshot: Partial<AccountStateSnapshot>) => {
   migrateStorage();
   if (snapshot.myList) localStorage.setItem(MY_LIST_KEY, JSON.stringify(snapshot.myList));
-  if (snapshot.watchProgress) localStorage.setItem(WATCH_PROGRESS_KEY, JSON.stringify(snapshot.watchProgress));
+  if (snapshot.watchProgress) {
+    localStorage.setItem(WATCH_PROGRESS_KEY, JSON.stringify(snapshot.watchProgress));
+    emitWatchProgressUpdated();
+  }
   if (snapshot.searchHistory) localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(snapshot.searchHistory));
   if (Object.prototype.hasOwnProperty.call(snapshot, "avatarId")) {
     if (snapshot.avatarId) localStorage.setItem(AVATAR_KEY, snapshot.avatarId);

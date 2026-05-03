@@ -19,7 +19,12 @@ import { LoginPage } from "@/pages/LoginPage";
 import { RegisterPage } from "@/pages/RegisterPage";
 import { ForgotPasswordPage } from "@/pages/ForgotPasswordPage";
 import { ResetPasswordPage } from "@/pages/ResetPasswordPage";
-import { getMyList, getWatchProgress, toggleMyList } from "@/lib/storage";
+import {
+  getMyList,
+  getWatchProgress,
+  toggleMyList,
+  WATCH_PROGRESS_UPDATED_EVENT,
+} from "@/lib/storage";
 import { toast } from "@/hooks/use-toast";
 
 const ScrollToTop = () => {
@@ -41,14 +46,14 @@ const AppRoutes = () => {
   useEffect(() => {
     setMyList(getMyList());
     const syncMyList = () => setMyList(getMyList());
+    const syncProgress = () => setProgressVersion((current) => current + 1);
     window.addEventListener("storage", syncMyList);
-    const interval = window.setInterval(
-      () => setProgressVersion((current) => current + 1),
-      1000,
-    );
+    window.addEventListener("storage", syncProgress);
+    window.addEventListener(WATCH_PROGRESS_UPDATED_EVENT, syncProgress);
     return () => {
       window.removeEventListener("storage", syncMyList);
-      window.clearInterval(interval);
+      window.removeEventListener("storage", syncProgress);
+      window.removeEventListener(WATCH_PROGRESS_UPDATED_EVENT, syncProgress);
     };
   }, []);
 
