@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowLeft, ShieldCheck, Scroll, Cookie, Sparkle, Lightning } from "@phosphor-icons/react";
 import { PageContainer } from "@/components/layout/PageContainer";
@@ -181,12 +180,7 @@ export const StaticPage = ({ page }: StaticPageProps) => {
             <ArrowLeft size={15} weight="bold" />
             Back to Home
           </Link>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="flex items-center gap-4"
-          >
+          <div className="flex items-center gap-4">
             <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-primary text-primary-foreground shadow-lg">
               <Icon size={24} weight="fill" />
             </span>
@@ -194,7 +188,7 @@ export const StaticPage = ({ page }: StaticPageProps) => {
               <h1 className="text-3xl font-bold text-foreground md:text-4xl">{info.title}</h1>
               <p className="mt-1 text-sm text-muted-foreground">{info.updated}</p>
             </div>
-          </motion.div>
+          </div>
         </PageContainer>
       </div>
 
@@ -202,15 +196,12 @@ export const StaticPage = ({ page }: StaticPageProps) => {
       <PageContainer className="py-12">
         <div className="mx-auto max-w-3xl space-y-10">
           {info.sections.map((section, i) => (
-            <motion.div
+            <div
               key={section.heading}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35, delay: i * 0.07 }}
-              className="group"
+              className="group rounded-xl border border-border/60 bg-card px-5 py-4 md:px-6"
             >
               <div className="flex items-start gap-4">
-                <span className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-xs font-bold text-primary">
+                <span className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary text-xs font-bold text-background">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <div>
@@ -224,7 +215,7 @@ export const StaticPage = ({ page }: StaticPageProps) => {
               {i < info.sections.length - 1 && (
                 <div className="mt-8 border-t border-border/50" />
               )}
-            </motion.div>
+            </div>
           ))}
         </div>
       </PageContainer>

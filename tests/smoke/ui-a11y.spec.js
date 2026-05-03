@@ -486,3 +486,29 @@ test("badge PRO di profile memenuhi kontras minimum", async ({ page }) => {
 
   expect(contrast, "Kontras badge PRO harus >= 4.5:1").toBeGreaterThanOrEqual(4.5);
 });
+
+test("konten auth dan privacy tidak diawali opacity rendah", async ({ page }) => {
+  const checks = [
+    { route: "/login", selectors: ["h1", "#email", "#password"] },
+    { route: "/privacy", selectors: ["main h1", "main .group:nth-child(1) h2", "main .group:nth-child(1) p"] },
+  ];
+
+  for (const check of checks) {
+    const response = await page.goto(check.route, { waitUntil: "domcontentloaded" });
+    expect(response, `Navigation should return a response for ${check.route}`).not.toBeNull();
+    expect(response?.status(), `Expected HTTP 200 for ${check.route}`).toBe(200);
+
+    const invalid = await page.evaluate((selectors) => {
+      const failed = [];
+      for (const selector of selectors) {
+        const element = document.querySelector(selector);
+        if (!element) continue;
+        const opacity = Number(window.getComputedStyle(element).opacity || "1");
+        if (opacity < 1) failed.push({ selector, opacity });
+      }
+      return failed;
+    }, check.selectors);
+
+    expect(invalid, `Elemen kunci di ${check.route} tidak boleh opacity < 1`).toEqual([]);
+  }
+});

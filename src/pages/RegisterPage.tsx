@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import { Eye, EyeSlash, LockKey, Envelope, User } from "@phosphor-icons/react";
 import { BrandLogo } from "@/components/common/BrandLogo";
 import { useAuth } from "@/hooks/use-auth";
@@ -42,17 +41,7 @@ export const RegisterPage = () => {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4 py-12">
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -left-40 -top-40 h-96 w-96 rounded-full bg-primary/10 blur-[120px]" />
-        <div className="absolute -bottom-32 -right-32 h-80 w-80 rounded-full bg-primary/8 blur-[100px]" />
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45 }}
-        className="relative z-10 w-full max-w-md"
-      >
+      <div className="relative z-10 w-full max-w-md">
         <div className="mb-8 flex flex-col items-center gap-3">
           <Link to="/" className="text-foreground transition-colors hover:text-primary">
             <BrandLogo size="md" />
@@ -60,7 +49,7 @@ export const RegisterPage = () => {
           <p className="text-sm text-muted-foreground">Start streaming in seconds.</p>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card/80 p-8 shadow-2xl backdrop-blur-xl">
+        <div className="rounded-2xl border border-border bg-card p-8 shadow-2xl">
           <h1 className="mb-6 text-center text-2xl font-semibold tracking-tight text-foreground">Create Account</h1>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -159,7 +148,7 @@ export const RegisterPage = () => {
             <Link to="/login" className="font-medium text-primary hover:underline">Sign in</Link>
           </p>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };
