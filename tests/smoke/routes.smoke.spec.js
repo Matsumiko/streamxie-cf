@@ -46,3 +46,22 @@ for (const route of ROUTES) {
     expect(consoleErrors, `Unexpected console errors on ${route}: ${consoleErrors.join(" | ")}`).toEqual([]);
   });
 }
+
+test("anonymous watch route does not trigger account-state sync request", async ({ page }) => {
+  const userStateRequests = [];
+
+  page.on("request", (request) => {
+    const url = request.url();
+    if (url.includes("/api/user/state")) {
+      userStateRequests.push({ method: request.method(), url });
+    }
+  });
+
+  const response = await page.goto("/watch/tmdb--movie--1007757", { waitUntil: "domcontentloaded" });
+  expect(response, "Navigation should return a response for watch route").not.toBeNull();
+  expect(response?.status(), "Watch route should return 200").toBe(200);
+
+  await page.waitForTimeout(2500);
+
+  expect(userStateRequests, `Anonymous session should not call /api/user/state, got: ${JSON.stringify(userStateRequests)}`).toEqual([]);
+});

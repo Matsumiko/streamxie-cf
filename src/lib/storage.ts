@@ -18,6 +18,8 @@ const LEGACY_WATCH_PROGRESS_KEY = "streamora-watch-progress";
 const LEGACY_SEARCH_HISTORY_KEY = "streamora-search-history";
 const AVATAR_KEY = "streamxie-avatar";
 const LEGACY_AVATAR_KEY = "streamora-avatar";
+const AUTH_USER_KEY = "streamxie-auth-user";
+const LEGACY_AUTH_USER_KEY = "streamora-auth-user";
 
 let pendingSyncTimer: number | null = null;
 let pendingPatch: Partial<AccountStateSnapshot> = {};
@@ -37,11 +39,25 @@ type AccountStateSnapshot = {
   avatarId: string | null;
 };
 
+const hasAuthenticatedUser = () => {
+  try {
+    migrateLocalStorageKey(AUTH_USER_KEY, LEGACY_AUTH_USER_KEY);
+    const raw = localStorage.getItem(AUTH_USER_KEY);
+    if (!raw) return false;
+    const parsed = JSON.parse(raw);
+    return Boolean(parsed?.name);
+  } catch {
+    return false;
+  }
+};
+
 const flushAccountPatch = async () => {
   const patch = pendingPatch;
   pendingPatch = {};
   pendingSyncTimer = null;
   if (Object.keys(patch).length === 0) return;
+  // Jangan kirim sinkronisasi akun jika sesi lokal sudah tidak ada (anon/logout).
+  if (!hasAuthenticatedUser()) return;
   try {
     await patchAccountState(patch);
   } catch {
@@ -50,6 +66,7 @@ const flushAccountPatch = async () => {
 };
 
 const enqueueAccountPatch = (patch: Partial<AccountStateSnapshot>) => {
+  if (!hasAuthenticatedUser()) return;
   pendingPatch = { ...pendingPatch, ...patch };
   if (pendingSyncTimer) window.clearTimeout(pendingSyncTimer);
   pendingSyncTimer = window.setTimeout(() => {
