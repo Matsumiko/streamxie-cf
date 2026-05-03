@@ -2,22 +2,41 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Envelope, CheckCircle } from "@phosphor-icons/react";
 import { BrandLogo } from "@/components/common/BrandLogo";
+import { requestPasswordResetLink } from "@/lib/account-api";
 import { useDocumentMeta } from "@/hooks/useDocumentMeta";
 
 export const ForgotPasswordPage = () => {
   useDocumentMeta("Forgot Password | streamXie", "Reset your streamXie password.");
   const [email, setEmail] = useState("");
+  const [submittedEmail, setSubmittedEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const mapRecoveryError = (message: string) => {
+    if (/method or path not allowed/i.test(message)) {
+      return "Fitur pemulihan akun belum tersedia saat ini. Coba lagi nanti.";
+    }
+    return message || "Permintaan gagal diproses. Coba lagi.";
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+    setSubmitted(false);
     if (!email.trim()) return;
+
     setLoading(true);
-    window.setTimeout(() => {
-      setLoading(false);
+    try {
+      await requestPasswordResetLink({ email: email.trim() });
+      setSubmittedEmail(email.trim());
       setSubmitted(true);
-    }, 1200);
+    } catch (submitError) {
+      const message = submitError instanceof Error ? submitError.message : "";
+      setError(mapRecoveryError(message));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -37,7 +56,7 @@ export const ForgotPasswordPage = () => {
               </div>
               <h1 className="text-xl font-semibold text-foreground">Check your inbox</h1>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                We&#39;ve sent a password reset link to <span className="text-foreground font-medium">{email}</span>.
+                We&#39;ve sent a password reset link to <span className="text-foreground font-medium">{submittedEmail}</span>.
                 Check your spam folder if it doesn&#39;t arrive within a few minutes.
               </p>
               <Link
@@ -78,6 +97,12 @@ export const ForgotPasswordPage = () => {
                 >
                   {loading ? "Sending…" : "Send reset link"}
                 </button>
+
+                {error && (
+                  <p role="alert" className="rounded-lg border border-red-700/40 bg-red-950/40 px-4 py-2.5 text-xs text-red-400">
+                    {error}
+                  </p>
+                )}
               </form>
 
               <p className="mt-6 text-center text-sm text-muted-foreground">

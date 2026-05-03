@@ -59,6 +59,28 @@ export const fetchSessionUser = async () => {
   return payload.user as DemoUser;
 };
 
+export const requestPasswordResetLink = async (input: { email: string }) => {
+  const { response, payload } = await requestJson("/api/auth/forgot-password", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+  if (!response.ok) {
+    throw new Error(payload?.error || "Permintaan tautan reset gagal.");
+  }
+  return payload;
+};
+
+export const resetAccountPassword = async (input: { token: string; password: string }) => {
+  const { response, payload } = await requestJson("/api/auth/reset-password", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+  if (!response.ok) {
+    throw new Error(payload?.error || "Reset kata sandi gagal.");
+  }
+  return payload;
+};
+
 export const fetchAccountState = async () => {
   const { response, payload } = await requestJson("/api/user/state", { method: "GET" });
   if (!response.ok || !payload?.state) return null;
