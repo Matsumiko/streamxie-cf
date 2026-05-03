@@ -148,6 +148,7 @@ export const StreamxieCollectionPage = ({
   if (!pageScope || !pageConfig || !type || !slug) {
     return (
       <PageContainer className="pt-32 pb-16">
+        <h1 className="sr-only">Collection not found</h1>
         <EmptyState
           title="Collection not found"
           description="This streamxie collection route is not registered."
@@ -160,6 +161,7 @@ export const StreamxieCollectionPage = ({
 
   return (
     <PageContainer className="pt-32 pb-16">
+      <h1 className="sr-only">{title || `${pageConfig.label} Collection`}</h1>
       <div className="mb-6">
         <Link
           to={`/${pageScope}`}
