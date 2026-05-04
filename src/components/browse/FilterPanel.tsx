@@ -45,13 +45,13 @@ export const FilterPanel = ({ filters, setFilters, options }: FilterPanelProps) 
   };
 
   const fields = [
-    { key: "genre", label: "Genre", values: resolvedOptions.genres },
-    { key: "year", label: "Year", values: resolvedOptions.years },
-    { key: "type", label: "Type", values: resolvedOptions.contentTypes },
-    { key: "country", label: "Bahasa asli", values: resolvedOptions.countries },
-    { key: "status", label: "Status rilis", values: resolvedOptions.statuses },
-    { key: "provider", label: "Provider", values: resolvedOptions.providers },
-    { key: "sort", label: "Sort by", values: resolvedOptions.sortOptions },
+    { key: "genre", label: "Genre", values: resolvedOptions.genres, allowAll: true },
+    { key: "year", label: "Year", values: resolvedOptions.years, allowAll: true },
+    { key: "type", label: "Type", values: resolvedOptions.contentTypes, allowAll: true },
+    { key: "country", label: "Bahasa asli", values: resolvedOptions.countries, allowAll: true },
+    { key: "status", label: "Status rilis", values: resolvedOptions.statuses, allowAll: true },
+    { key: "provider", label: "Provider", values: resolvedOptions.providers, allowAll: true },
+    { key: "sort", label: "Sort by", values: resolvedOptions.sortOptions, allowAll: false },
   ] as const;
 
   return (
@@ -77,7 +77,7 @@ export const FilterPanel = ({ filters, setFilters, options }: FilterPanelProps) 
                 <SelectValue placeholder={`All ${field.label}`} />
               </SelectTrigger>
               <SelectContent className="border-border bg-card text-card-foreground">
-                <SelectItem value="All">All</SelectItem>
+                {field.allowAll ? <SelectItem value="All">All</SelectItem> : null}
                 {field.values.map((value) => (
                   <SelectItem key={value} value={value}>
                     {value}

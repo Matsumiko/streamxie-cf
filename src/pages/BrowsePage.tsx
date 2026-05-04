@@ -114,6 +114,29 @@ export const BrowsePage = ({ myList, onToggleList }: BrowsePageProps) => {
   }, [activeChip, location.search]);
 
   useEffect(() => {
+    if (filters.type === "Movies" && activeChip !== "Movies") {
+      setActiveChip("Movies");
+      navigate("/browse?category=Movies", { replace: true });
+      return;
+    }
+    if (filters.type === "Series" && activeChip !== "Series") {
+      setActiveChip("Series");
+      navigate("/browse?category=Series", { replace: true });
+      return;
+    }
+    if (filters.type === "All" && (activeChip === "Movies" || activeChip === "Series")) {
+      setActiveChip("All");
+      navigate("/browse", { replace: true });
+    }
+  }, [activeChip, filters.type, navigate]);
+
+  useEffect(() => {
+    if (filters.sort === "All") {
+      setFilters((current) => ({ ...current, sort: "Popularity" }));
+    }
+  }, [filters.sort]);
+
+  useEffect(() => {
     let mounted = true;
     fetchTmdbBrowseFacets()
       .then((facets) => {
@@ -224,6 +247,7 @@ export const BrowsePage = ({ myList, onToggleList }: BrowsePageProps) => {
       sort: "Popularity",
     });
     setActiveChip("All");
+    navigate("/browse", { replace: true });
   };
 
   const loadMore = useCallback(async () => {
