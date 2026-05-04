@@ -480,7 +480,6 @@ export const VideoPlayer = ({
             src={activeUrl}
             className="h-full w-full border-0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-            allowFullScreen
             referrerPolicy="no-referrer"
           />
         </div>

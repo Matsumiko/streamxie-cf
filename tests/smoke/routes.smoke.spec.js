@@ -179,3 +179,15 @@ test("series watch mempertahankan source terpilih saat pindah episode", async ({
     )
     .toBe("matched");
 });
+
+test("watch iframe memakai izin fullscreen tanpa atribut redundan", async ({ page }) => {
+  const response = await page.goto("/watch/tmdb--movie--1007757", { waitUntil: "domcontentloaded" });
+  expect(response, "Navigation should return a response for watch route").not.toBeNull();
+  expect(response?.status(), "Watch route should return 200").toBe(200);
+
+  const iframe = page.locator("main iframe").first();
+  await expect(iframe).toBeVisible({ timeout: 20_000 });
+  await expect(iframe).toHaveAttribute("title", /watch/i);
+  await expect(iframe).toHaveAttribute("allow", /fullscreen/);
+  expect(await iframe.getAttribute("allowfullscreen")).toBeNull();
+});
