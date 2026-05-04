@@ -2,19 +2,23 @@ type SectionHeaderProps = {
   title: string;
   subtitle?: string;
   action?: React.ReactNode;
+  headingLevel?: "h1" | "h2";
 };
 
 export const SectionHeader = ({
   title,
   subtitle,
   action,
+  headingLevel = "h2",
 }: SectionHeaderProps) => {
+  const HeadingTag = headingLevel;
+
   return (
     <div className="mb-5 flex items-start justify-between gap-4">
       <div className="space-y-1.5 min-w-0">
-        <h2 className="text-xl font-medium uppercase tracking-[0.12em] text-foreground md:text-2xl">
+        <HeadingTag className="text-xl font-medium uppercase tracking-[0.12em] text-foreground md:text-2xl">
           {title}
-        </h2>
+        </HeadingTag>
         {subtitle ? (
           <p className="max-w-lg truncate text-sm text-muted-foreground">
             {subtitle}

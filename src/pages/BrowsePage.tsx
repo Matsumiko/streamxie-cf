@@ -283,8 +283,8 @@ export const BrowsePage = ({ myList, onToggleList }: BrowsePageProps) => {
 
   return (
     <PageContainer className="pt-32 pb-16">
-      <h1 className="sr-only">Jelajahi film, series, anime, dan drama di streamXie</h1>
       <SectionHeader
+        headingLevel="h1"
         title="Browse"
         subtitle={subtitle}
         action={

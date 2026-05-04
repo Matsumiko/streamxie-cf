@@ -465,6 +465,9 @@ test("watch page memiliki heading level satu untuk struktur dokumen", async ({ p
 test("route kritikal memiliki heading level satu", async ({ page }) => {
   const routes = [
     "/browse",
+    "/trending-today",
+    "/popular-movies",
+    "/netflix-series",
     "/movie/tmdb--movie--1007757",
     "/series/tmdb--tv--202250",
     "/streamxie1",

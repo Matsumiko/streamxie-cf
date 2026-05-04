@@ -108,6 +108,7 @@ export const CollectionPage = ({ myList, onToggleList, sectionSlug }: Collection
   if (!route) {
     return (
       <PageContainer className="pt-32 pb-16">
+        <h1 className="sr-only">Section not found</h1>
         <EmptyState
           title="Section not found"
           description="This streamXie section is not registered."
@@ -131,6 +132,7 @@ export const CollectionPage = ({ myList, onToggleList, sectionSlug }: Collection
       </div>
 
       <SectionHeader
+        headingLevel="h1"
         title={route.title}
         subtitle={loading ? route.subtitle : `${route.subtitle} Showing ${items.length} titles.`}
       />

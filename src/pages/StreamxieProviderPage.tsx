@@ -116,8 +116,7 @@ export const StreamxieProviderPage = ({
 
   return (
     <PageContainer className="pt-32 pb-16">
-      <h1 className="sr-only">{pageConfig.label}</h1>
-      <SectionHeader title={pageConfig.label} subtitle={subtitle} />
+      <SectionHeader headingLevel="h1" title={pageConfig.label} subtitle={subtitle} />
 
       {state.loading ? (
         <div className="mb-8 flex min-h-[240px] items-center justify-center rounded-xl border border-border bg-card/40">

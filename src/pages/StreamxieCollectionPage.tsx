@@ -161,7 +161,6 @@ export const StreamxieCollectionPage = ({
 
   return (
     <PageContainer className="pt-32 pb-16">
-      <h1 className="sr-only">{title || `${pageConfig.label} Collection`}</h1>
       <div className="mb-6">
         <Link
           to={`/${pageScope}`}
@@ -173,6 +172,7 @@ export const StreamxieCollectionPage = ({
       </div>
 
       <SectionHeader
+        headingLevel="h1"
         title={title || `${pageConfig.label} Collection`}
         subtitle={loading ? subtitle || pageConfig.subtitle : `${subtitle || pageConfig.subtitle} Showing ${items.length} titles.`}
       />
