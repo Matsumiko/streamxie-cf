@@ -14,6 +14,7 @@ import type { ContentItem } from "@/types/content";
 type CollectionPageProps = {
   myList: string[];
   onToggleList: (id: string) => void;
+  sectionSlug?: string;
 };
 
 const mergeItems = (current: ContentItem[], next: ContentItem[]) => {
@@ -21,9 +22,10 @@ const mergeItems = (current: ContentItem[], next: ContentItem[]) => {
   return [...current, ...next.filter((item) => !seen.has(item.id))];
 };
 
-export const CollectionPage = ({ myList, onToggleList }: CollectionPageProps) => {
-  const { sectionSlug } = useParams<{ sectionSlug: string }>();
-  const route = useMemo(() => getStreamSectionRoute(sectionSlug), [sectionSlug]);
+export const CollectionPage = ({ myList, onToggleList, sectionSlug }: CollectionPageProps) => {
+  const params = useParams<{ sectionSlug?: string }>();
+  const activeSectionSlug = sectionSlug ?? params.sectionSlug;
+  const route = useMemo(() => getStreamSectionRoute(activeSectionSlug), [activeSectionSlug]);
   const [items, setItems] = useState<ContentItem[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -44,7 +46,7 @@ export const CollectionPage = ({ myList, onToggleList }: CollectionPageProps) =>
     setTotalPages(1);
     setError(null);
 
-    if (!sectionSlug || !route) {
+    if (!activeSectionSlug || !route) {
       setLoading(false);
       return () => {
         mounted = false;
@@ -52,7 +54,7 @@ export const CollectionPage = ({ myList, onToggleList }: CollectionPageProps) =>
     }
 
     setLoading(true);
-    fetchStreamSectionPage(sectionSlug, 1)
+    fetchStreamSectionPage(activeSectionSlug, 1)
       .then((sectionPage) => {
         if (!mounted) return;
         if (!sectionPage) {
@@ -75,19 +77,19 @@ export const CollectionPage = ({ myList, onToggleList }: CollectionPageProps) =>
     return () => {
       mounted = false;
     };
-  }, [route, sectionSlug]);
+  }, [activeSectionSlug, route]);
 
   const hasMore = Boolean(route) && !loading && !loadingMore && items.length > 0 && page < totalPages;
 
   const loadMore = async () => {
-    if (!sectionSlug || !hasMore) return;
+    if (!activeSectionSlug || !hasMore) return;
 
     const nextPage = page + 1;
     setLoadingMore(true);
     setError(null);
 
     try {
-      const sectionPage = await fetchStreamSectionPage(sectionSlug, nextPage);
+      const sectionPage = await fetchStreamSectionPage(activeSectionSlug, nextPage);
       if (!sectionPage) {
         setError("This streamXie section is not available.");
         return;

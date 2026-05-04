@@ -253,7 +253,13 @@ const AppRoutes = () => {
               <Route
                 key={route.slug}
                 path={`/${route.slug}`}
-                element={<CollectionPage myList={myList} onToggleList={handleToggleList} />}
+                element={
+                  <CollectionPage
+                    myList={myList}
+                    onToggleList={handleToggleList}
+                    sectionSlug={route.slug}
+                  />
+                }
               />
             ))}
             <Route path="*" element={<NotFoundPage />} />
