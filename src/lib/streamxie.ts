@@ -1723,6 +1723,29 @@ const buildFilterPaths = (provider: StreamProvider, kind: StreamxieFilterKind, s
   return [`${provider}/countries/${encoded}`, `${provider}/country/${encoded}`];
 };
 
+const STREAMXIE_FILTER_BLOCKLIST: Partial<Record<StreamxiePageKey, Partial<Record<StreamxieFilterKind, Set<string>>>>> = {
+  streamxie2: {
+    // Slug ini sudah diaudit dan endpoint upstream `kacain-3` saat ini mengembalikan 404.
+    genre: new Set([
+      "action",
+      "action-adventure",
+      "animation",
+      "documentary",
+      "drama",
+      "history",
+      "kids",
+      "sci-fi-fantasy",
+      "science-fiction",
+      "sport",
+      "thriller",
+      "tv-movie",
+      "uncategorized",
+      "war-politics",
+      "western",
+    ]),
+  },
+};
+
 const normalizeFilterOptions = (
   scope: StreamxiePageKey,
   kind: StreamxieFilterKind,
@@ -1760,6 +1783,16 @@ const normalizeFilterOptions = (
   });
 };
 
+const stabilizeProviderFilterOptions = (scope: StreamxiePageKey, options: StreamxieFilterOptions) => {
+  const blockedGenres = STREAMXIE_FILTER_BLOCKLIST[scope]?.genre;
+  if (!blockedGenres || options.genres.length === 0) return options;
+
+  return {
+    ...options,
+    genres: options.genres.filter((option) => !blockedGenres.has(option.slug)),
+  };
+};
+
 const findStreamxieSection = (scope: StreamxiePageKey, sectionSlug: string) =>
   getStreamxiePageConfig(scope)?.sections.find((section) => section.slug === sectionSlug) ?? null;
 
@@ -1789,7 +1822,7 @@ export const fetchStreamxieFilterOptions = async (scope: StreamxiePageKey): Prom
         ? normalizeFilterOptions(scope, "country", extractProviderFilterRows(results[2].value))
         : [];
 
-      return { genres, years, countries };
+      return stabilizeProviderFilterOptions(scope, { genres, years, countries });
     })
     .finally(() => {
       streamxieFilterPending.delete(scope);

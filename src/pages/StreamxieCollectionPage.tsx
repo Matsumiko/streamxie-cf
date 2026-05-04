@@ -34,6 +34,38 @@ const isCollectionType = (value: string): value is "section" | StreamxieFilterKi
 const isScope = (value: string): value is StreamxiePageKey =>
   value === "streamxie1" || value === "streamxie2" || value === "streamxie3";
 
+const slugLabel = (slug: string) =>
+  decodeURIComponent(slug)
+    .replace(/[-_]+/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+
+const fallbackCollectionCopy = (
+  pageLabel: string,
+  type: "section" | StreamxieFilterKind | null,
+  slug: string,
+) => {
+  if (!type || !slug) {
+    return {
+      title: `${pageLabel} Collection`,
+      subtitle: `${pageLabel} catalog collection.`,
+    };
+  }
+
+  const label = slugLabel(slug);
+  if (type === "section") {
+    return {
+      title: label,
+      subtitle: `${pageLabel} collection for ${label}.`,
+    };
+  }
+
+  const prefix = type === "genre" ? "Genre" : type === "year" ? "Year" : "Country";
+  return {
+    title: `${prefix} · ${label}`,
+    subtitle: `${pageLabel} filtered by ${label}.`,
+  };
+};
+
 export const StreamxieCollectionPage = ({
   myList,
   onToggleList,
@@ -48,10 +80,14 @@ export const StreamxieCollectionPage = ({
   const type = collectionType && isCollectionType(collectionType) ? collectionType : null;
   const slug = collectionSlug ?? "";
   const pageConfig = pageScope ? getStreamxiePageConfig(pageScope) : null;
+  const fallbackCopy = useMemo(
+    () => fallbackCollectionCopy(pageConfig?.label ?? "streamXie", type, slug),
+    [pageConfig?.label, slug, type],
+  );
 
   const [items, setItems] = useState<ContentItem[]>([]);
-  const [title, setTitle] = useState("");
-  const [subtitle, setSubtitle] = useState("");
+  const [title, setTitle] = useState(fallbackCopy.title);
+  const [subtitle, setSubtitle] = useState(fallbackCopy.subtitle);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [hasMore, setHasMore] = useState(false);
@@ -79,8 +115,8 @@ export const StreamxieCollectionPage = ({
     let mounted = true;
 
     setItems([]);
-    setTitle("");
-    setSubtitle("");
+    setTitle(fallbackCopy.title);
+    setSubtitle(fallbackCopy.subtitle);
     setPage(1);
     setTotalPages(1);
     setHasMore(false);
@@ -119,7 +155,7 @@ export const StreamxieCollectionPage = ({
     return () => {
       mounted = false;
     };
-  }, [pageScope, slug, type]);
+  }, [fallbackCopy.subtitle, fallbackCopy.title, pageScope, slug, type]);
 
   const loadMore = async () => {
     if (!hasMore || !pageScope || !type || !slug || loadingMore) return;
