@@ -230,7 +230,9 @@ export const BrowsePage = ({ myList, onToggleList }: BrowsePageProps) => {
   const hasActiveFilters = Object.entries(filters).some(([key, value]) => key !== "sort" && value !== "All");
   const visibleItems = filtered.slice(0, visibleCount);
   const canLoadMoreResults = !loading && (visibleCount < filtered.length || loadedPage < totalPages);
-  const subtitle = `${visibleItems.length.toLocaleString()} title tampil · ${catalogItems.length.toLocaleString()} termuat dari ${totalResults.toLocaleString()} total TMDB`;
+  const subtitle = loading
+    ? "Memuat katalog TMDB..."
+    : `${visibleItems.length.toLocaleString()} title tampil · ${catalogItems.length.toLocaleString()} termuat dari ${totalResults.toLocaleString()} total TMDB`;
 
   useEffect(() => {
     setVisibleCount(INITIAL_VISIBLE_ITEMS);

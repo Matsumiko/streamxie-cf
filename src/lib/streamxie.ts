@@ -1505,7 +1505,6 @@ const queryForTmdbDiscover = (
     const normalizedLanguage = filters.language.trim().toLowerCase();
     if (/^[a-z]{2}$/.test(normalizedLanguage)) {
       query.with_original_language = normalizedLanguage;
-      if (mediaType === "tv") query.with_origin_country = normalizedLanguage.toUpperCase();
     }
   }
 
