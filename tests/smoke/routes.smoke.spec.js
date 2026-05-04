@@ -103,3 +103,79 @@ test("provider watch route tidak stuck di loader sources", async ({ page }) => {
     )
     .toBe("resolved");
 });
+
+test("series watch mempertahankan source terpilih saat pindah episode", async ({ page }) => {
+  const response = await page.goto("/watch/tmdb--tv--202250", { waitUntil: "domcontentloaded" });
+  expect(response, "Navigation should return a response for the series watch route").not.toBeNull();
+  expect(response?.status(), "Series watch route should return 200").toBe(200);
+
+  await expect
+    .poll(
+      async () => page.evaluate(() => {
+        const episodeLink = document.querySelector("a[href*='episode=tmdb--tv--202250-s1e2']");
+        const sourceButtons = Array.from(document.querySelectorAll("main details button"));
+        return episodeLink && sourceButtons.length > 1 ? "ready" : "waiting";
+      }),
+      { timeout: 20_000, intervals: [500, 1_000, 2_000] },
+    )
+    .toBe("ready");
+
+  const preferredSourceLabel = await page.evaluate(() => {
+    const buttons = Array.from(document.querySelectorAll("main details button")).map((button) => ({
+      text: (button.textContent || "").trim(),
+      selected: button.className.includes("border-primary/60"),
+    }));
+
+    const explicitPreferred = buttons.find((button) => !button.selected && button.text.toLowerCase() === "moviesapi");
+    if (explicitPreferred) return explicitPreferred.text;
+
+    return buttons.find((button) => !button.selected)?.text ?? "";
+  });
+
+  if (!preferredSourceLabel) {
+    return;
+  }
+
+  await page.locator("main details button", { hasText: preferredSourceLabel }).first().click();
+
+  await expect
+    .poll(
+      async () => page.evaluate(() => {
+        return (
+          Array.from(document.querySelectorAll("main details button")).find((button) =>
+            button.className.includes("border-primary/60"),
+          )?.textContent || ""
+        ).trim();
+      }),
+      { timeout: 10_000, intervals: [300, 800, 1_500] },
+    )
+    .toBe(preferredSourceLabel);
+
+  await page.getByRole("link", { name: /Belly of the Beast/i }).click();
+
+  await expect
+    .poll(
+      async () => page.evaluate((expectedLabel) => {
+        const selected = (
+          Array.from(document.querySelectorAll("main details button")).find((button) =>
+            button.className.includes("border-primary/60"),
+          )?.textContent || ""
+        ).trim();
+
+        const activeMedia = document.querySelector("main iframe, main video");
+        const activeSrc =
+          activeMedia?.getAttribute("src") ||
+          (activeMedia instanceof HTMLVideoElement ? activeMedia.currentSrc || activeMedia.src : "") ||
+          "";
+
+        const episodeTwoLoaded =
+          activeSrc.includes("/1/2") ||
+          activeSrc.includes("-1-2") ||
+          activeSrc.includes("season=1") && activeSrc.includes("episode=2");
+
+        return selected === expectedLabel && episodeTwoLoaded ? "matched" : JSON.stringify({ selected, activeSrc });
+      }, preferredSourceLabel),
+      { timeout: 20_000, intervals: [500, 1_000, 2_000] },
+    )
+    .toBe("matched");
+});

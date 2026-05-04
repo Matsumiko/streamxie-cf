@@ -44,6 +44,11 @@ type SourceGroup = {
   sources: StreamPlaybackSource[];
 };
 
+type SourcePreference = {
+  provider?: StreamProvider;
+  serverKey: string;
+};
+
 const isNativeStreamUrl = (value?: string | null) =>
   Boolean(value && /\.(mp4|webm|ogg|m3u8)(\?|$)/i.test(value));
 
@@ -110,6 +115,11 @@ const buildSourceGroups = (sources: StreamPlaybackSource[]): SourceGroup[] => {
   return [...orderedGroups, ...extraGroups];
 };
 
+const buildSourcePreference = (source: StreamPlaybackSource): SourcePreference => ({
+  provider: source.provider,
+  serverKey: normalizeServerLabel(source.server, 0).trim().toLowerCase(),
+});
+
 const SourceSelector = ({
   groups,
   selectedUrl,
@@ -117,7 +127,7 @@ const SourceSelector = ({
 }: {
   groups: SourceGroup[];
   selectedUrl: string | null;
-  onSelect: (url: string) => void;
+  onSelect: (source: StreamPlaybackSource) => void;
 }) => {
   if (groups.length === 0) return null;
 
@@ -156,7 +166,7 @@ const SourceSelector = ({
                   <button
                     key={`${source.server}-${source.url}`}
                     type="button"
-                    onClick={() => onSelect(source.url)}
+                    onClick={() => onSelect(source)}
                     className={`flex min-h-10 items-center justify-between gap-2 rounded-md border px-2.5 py-1.5 text-left text-xs transition-colors ${
                       selected
                         ? "border-primary/60 bg-primary/15 text-primary"
@@ -222,6 +232,7 @@ export const VideoPlayer = ({
   const [showNextBadge, setShowNextBadge] = useState(false);
   const [autoplayCountdown, setAutoplayCountdown] = useState<number | null>(null);
   const [selectedSourceUrl, setSelectedSourceUrl] = useState<string | null>(null);
+  const [selectedSourcePreference, setSelectedSourcePreference] = useState<SourcePreference | null>(null);
   const autoplayTimerRef = useRef<number | null>(null);
   const sourceGroups = useMemo(() => buildSourceGroups(streamSources), [streamSources]);
   const preferredSource = useMemo(
@@ -286,8 +297,37 @@ export const VideoPlayer = ({
   }, []);
 
   useEffect(() => {
-    setSelectedSourceUrl(preferredSource?.url ?? embedUrl ?? null);
-  }, [embedUrl, preferredSource?.url]);
+    setSelectedSourcePreference(null);
+  }, [item.id]);
+
+  useEffect(() => {
+    const matchedPreferredSource = selectedSourcePreference
+      ? streamSources.find((source) => {
+        const candidate = buildSourcePreference(source);
+        return (
+          candidate.serverKey === selectedSourcePreference.serverKey &&
+          candidate.provider === selectedSourcePreference.provider
+        );
+      })
+      : null;
+
+    const nextSelectedUrl = matchedPreferredSource?.url ?? preferredSource?.url ?? embedUrl ?? null;
+
+    setSelectedSourceUrl((current) => {
+      if (current && streamSources.some((source) => source.url === current)) {
+        return current;
+      }
+      if (current && current === embedUrl && !streamSources.length) {
+        return current;
+      }
+      return nextSelectedUrl;
+    });
+  }, [embedUrl, preferredSource?.url, selectedSourcePreference, streamSources]);
+
+  const handleSourceSelect = (source: StreamPlaybackSource) => {
+    setSelectedSourcePreference(buildSourcePreference(source));
+    setSelectedSourceUrl(source.url);
+  };
 
   // Show "next episode" badge when < 30 s remain
   useEffect(() => {
@@ -423,7 +463,7 @@ export const VideoPlayer = ({
               <p className="truncate text-lg font-medium text-foreground">{item.title}</p>
               <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{item.description}</p>
             </div>
-            <SourceSelector groups={sourceGroups} selectedUrl={activeUrl} onSelect={setSelectedSourceUrl} />
+            <SourceSelector groups={sourceGroups} selectedUrl={activeUrl} onSelect={handleSourceSelect} />
           </div>
         </div>
       </div>
@@ -451,7 +491,7 @@ export const VideoPlayer = ({
               <p className="truncate text-lg font-medium text-foreground">{item.title}</p>
               <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{item.description}</p>
             </div>
-            <SourceSelector groups={sourceGroups} selectedUrl={activeUrl} onSelect={setSelectedSourceUrl} />
+            <SourceSelector groups={sourceGroups} selectedUrl={activeUrl} onSelect={handleSourceSelect} />
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
             {item.genres.map((g) => (
@@ -734,7 +774,7 @@ export const VideoPlayer = ({
           </div>
         </div>
         <div className="mt-4">
-          <SourceSelector groups={sourceGroups} selectedUrl={activeUrl} onSelect={setSelectedSourceUrl} />
+          <SourceSelector groups={sourceGroups} selectedUrl={activeUrl} onSelect={handleSourceSelect} />
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
           {item.genres.map((g) => (
