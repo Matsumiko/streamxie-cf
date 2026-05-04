@@ -20,7 +20,7 @@ export const HomePage = ({
   onToggleList,
   progressMap,
 }: HomePageProps) => {
-  const { sections, items, loading, error } = useStreamCatalog({ scope: "home" });
+  const { sections, items, loading, error } = useStreamCatalog();
   const featuredItems = items.slice(0, 6);
   const continueWatching = useMemo(
     () =>
@@ -58,7 +58,7 @@ export const HomePage = ({
               subtitle={section.subtitle}
               viewAllHref={section.viewAllHref}
             >
-              {section.items.slice(0, 8).map((item, index) => (
+              {section.items.slice(0, 12).map((item, index) => (
                 <div
                   key={`${section.id}-${item.id}-${index}`}
                   className={ranked ? "shrink-0" : "w-[160px] shrink-0 md:w-[200px]"}
@@ -92,7 +92,7 @@ export const HomePage = ({
             subtitle={section.subtitle}
             viewAllHref={section.viewAllHref}
           >
-            {section.items.slice(0, 8).map((item, index) => (
+            {section.items.slice(0, 12).map((item, index) => (
               <div key={`${section.id}-${item.id}-${index}`} className="w-[160px] shrink-0 md:w-[200px]" style={{ scrollSnapAlign: "start" }}>
                 <PosterCard item={item} inList={myList.includes(item.id)} onToggleList={onToggleList} />
               </div>

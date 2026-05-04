@@ -9,7 +9,6 @@ type CatalogState = {
   items: ContentItem[];
   sections: StreamHomeSection[];
 };
-type StreamCatalogScope = "full" | "home";
 
 const emptyState: CatalogState = {
   loading: false,
@@ -19,53 +18,45 @@ const emptyState: CatalogState = {
   sections: [],
 };
 
-const HOME_ENDPOINT_LIMIT = 8;
-const cachedByScope = new Map<StreamCatalogScope, CatalogState>();
-const pendingByScope = new Map<StreamCatalogScope, Promise<CatalogState>>();
+let cachedState: CatalogState | null = null;
+let pendingRequest: Promise<CatalogState> | null = null;
 
-const loadCatalog = async (scope: StreamCatalogScope): Promise<CatalogState> => {
-  const cachedState = cachedByScope.get(scope);
+const loadCatalog = async (): Promise<CatalogState> => {
   if (cachedState) return cachedState;
-  const pendingRequest = pendingByScope.get(scope);
   if (pendingRequest) return pendingRequest;
-  const endpointLimit = scope === "home" ? HOME_ENDPOINT_LIMIT : undefined;
 
-  const nextPending = fetchStreamHome(endpointLimit)
+  pendingRequest = fetchStreamHome()
     .then((result) => {
       if (result.items.length === 0 || result.sections.length === 0) {
-        cachedByScope.set(scope, emptyState);
+        cachedState = emptyState;
         return emptyState;
       }
 
-      const nextState: CatalogState = {
+      cachedState = {
         loading: false,
         source: "live",
         error: null,
         items: result.items,
         sections: result.sections,
       };
-      cachedByScope.set(scope, nextState);
 
-      return nextState;
+      return cachedState;
     })
     .catch((error: unknown) => {
-      const nextState: CatalogState = {
+      cachedState = {
         ...emptyState,
         error: error instanceof Error ? error.message : "Unable to load live stream catalog.",
       };
-      cachedByScope.set(scope, nextState);
-      return nextState;
+      return cachedState;
     })
     .finally(() => {
-      pendingByScope.delete(scope);
+      pendingRequest = null;
     });
 
-  pendingByScope.set(scope, nextPending);
-  return nextPending;
+  return pendingRequest;
 };
 
-export const useStreamCatalog = (options?: { scope?: StreamCatalogScope }) => {
-  const scope = options?.scope ?? "full";
+export const useStreamCatalog = () => {
   const [state, setState] = useState<CatalogState>({
     ...emptyState,
     loading: true,
@@ -74,14 +65,14 @@ export const useStreamCatalog = (options?: { scope?: StreamCatalogScope }) => {
   useEffect(() => {
     let mounted = true;
 
-    loadCatalog(scope).then((nextState) => {
+    loadCatalog().then((nextState) => {
       if (mounted) setState(nextState);
     });
 
     return () => {
       mounted = false;
     };
-  }, [scope]);
+  }, []);
 
   return state;
 };

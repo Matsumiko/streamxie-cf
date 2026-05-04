@@ -536,6 +536,39 @@ const safeImage = (value: unknown, fallback: string) => {
   return fallback;
 };
 
+const toEmbeddableTrailerUrl = (value: unknown, fallback = "") => {
+  const raw = normalizeText(value);
+  if (!raw) return normalizeText(fallback);
+
+  try {
+    const url = new URL(raw);
+    const host = url.hostname.toLowerCase();
+
+    if (host.includes("youtube.com")) {
+      if (url.pathname.startsWith("/embed/")) return url.toString();
+      const key = url.searchParams.get("v");
+      if (key) return `https://www.youtube.com/embed/${key}`;
+    }
+
+    if (host === "youtu.be") {
+      const key = url.pathname.replace(/^\/+/, "");
+      if (key) return `https://www.youtube.com/embed/${key}`;
+    }
+
+    if (host.includes("vimeo.com")) {
+      const segments = url.pathname.split("/").filter(Boolean);
+      const key = segments.length > 0 ? segments[segments.length - 1] : "";
+      if (key) return `https://player.vimeo.com/video/${key}`;
+    }
+
+    return url.toString();
+  } catch {
+    const youtubeMatch = raw.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{6,})/i);
+    if (youtubeMatch?.[1]) return `https://www.youtube.com/embed/${youtubeMatch[1]}`;
+    return normalizeText(fallback);
+  }
+};
+
 const tmdbImage = (value: unknown, size: string, fallback: string) => {
   const src = normalizeText(value);
   if (src.startsWith("https://")) return src;
@@ -821,7 +854,7 @@ export const normalizeProviderItem = (
     featured: index < 6,
     cast: peopleToCast(raw.actors ?? raw.cast ?? info.Cast ?? info["Bintang Film"], fallback),
     seasons: normalizeEpisodes(raw, fallback),
-    trailerUrl: normalizeText(firstString(raw.trailer), fallback.trailerUrl),
+    trailerUrl: toEmbeddableTrailerUrl(firstString(raw.trailer), fallback.trailerUrl),
     provider,
     providerType: routeType,
     providerSlug: String(providerKey),
@@ -897,7 +930,7 @@ const tmdbTrailerUrl = (raw: Record<string, unknown>, fallback?: string) => {
     );
 
   const key = trailer && isRecord(trailer) ? firstString(trailer.key) : "";
-  return key ? `https://www.youtube.com/embed/${key}` : fallback;
+  return key ? toEmbeddableTrailerUrl(`https://www.youtube.com/watch?v=${key}`, fallback) : normalizeText(fallback);
 };
 
 const formatCurrency = (value: unknown) => {
@@ -1351,16 +1384,13 @@ export const fetchStreamSectionPage = async (
   };
 };
 
-export const fetchStreamHome = async (endpointLimit?: number): Promise<{
+export const fetchStreamHome = async (): Promise<{
   sections: StreamHomeSection[];
   items: ContentItem[];
 }> => {
-  const homePlans = Number.isFinite(endpointLimit)
-    ? TMDB_HOME_ENDPOINTS.slice(0, Math.max(1, Math.min(TMDB_HOME_ENDPOINTS.length, Math.trunc(endpointLimit ?? 0))))
-    : TMDB_HOME_ENDPOINTS;
   const genreMap = await fetchTmdbGenreMap();
   const responses = await Promise.allSettled(
-    homePlans.map(async (plan, index) => ({
+    TMDB_HOME_ENDPOINTS.map(async (plan, index) => ({
       plan,
       response: await fetchTmdbJson(plan.path, plan.query),
       index,

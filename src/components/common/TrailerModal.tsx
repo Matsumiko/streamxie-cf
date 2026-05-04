@@ -9,6 +9,18 @@ type TrailerModalProps = {
   onClose: () => void;
 };
 
+const buildTrailerSrc = (trailerUrl?: string) => {
+  if (!trailerUrl) return "";
+  try {
+    const url = new URL(trailerUrl);
+    url.searchParams.set("autoplay", "1");
+    url.searchParams.set("playsinline", "1");
+    return url.toString();
+  } catch {
+    return trailerUrl;
+  }
+};
+
 export const TrailerModal = ({ open, title, trailerUrl, onClose }: TrailerModalProps) => {
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -109,7 +121,7 @@ export const TrailerModal = ({ open, title, trailerUrl, onClose }: TrailerModalP
             <div className="aspect-video w-full bg-black">
               {trailerUrl ? (
                 <iframe
-                  src={trailerUrl + "?autoplay=1&mute=0"}
+                  src={buildTrailerSrc(trailerUrl)}
                   title={`${title} Trailer`}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
