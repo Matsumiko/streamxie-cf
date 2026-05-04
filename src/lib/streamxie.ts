@@ -1351,13 +1351,16 @@ export const fetchStreamSectionPage = async (
   };
 };
 
-export const fetchStreamHome = async (): Promise<{
+export const fetchStreamHome = async (endpointLimit?: number): Promise<{
   sections: StreamHomeSection[];
   items: ContentItem[];
 }> => {
+  const homePlans = Number.isFinite(endpointLimit)
+    ? TMDB_HOME_ENDPOINTS.slice(0, Math.max(1, Math.min(TMDB_HOME_ENDPOINTS.length, Math.trunc(endpointLimit ?? 0))))
+    : TMDB_HOME_ENDPOINTS;
   const genreMap = await fetchTmdbGenreMap();
   const responses = await Promise.allSettled(
-    TMDB_HOME_ENDPOINTS.map(async (plan, index) => ({
+    homePlans.map(async (plan, index) => ({
       plan,
       response: await fetchTmdbJson(plan.path, plan.query),
       index,

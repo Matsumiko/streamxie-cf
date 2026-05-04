@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { PageContainer } from "@/components/layout/PageContainer";
@@ -18,6 +18,8 @@ type BrowsePageProps = {
 };
 
 export const BrowsePage = ({ myList, onToggleList }: BrowsePageProps) => {
+  const INITIAL_VISIBLE_ITEMS = 48;
+  const LOAD_MORE_STEP = 48;
   const { items: catalogItems, loading, source } = useStreamCatalog();
 
   useDocumentMeta(
@@ -29,6 +31,7 @@ export const BrowsePage = ({ myList, onToggleList }: BrowsePageProps) => {
   const initialCategory = new URLSearchParams(location.search).get("category") || "All";
   const [activeChip, setActiveChip] = useState(initialCategory);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_ITEMS);
   const [filters, setFilters] = useState<BrowseFilters>({
     genre: "All",
     year: "All",
@@ -75,6 +78,11 @@ export const BrowsePage = ({ myList, onToggleList }: BrowsePageProps) => {
   }, [activeChip, catalogItems, filters, providerChips]);
 
   const hasActiveFilters = Object.entries(filters).some(([k, v]) => k !== "sort" && v !== "All");
+  const visibleItems = filtered.slice(0, visibleCount);
+
+  useEffect(() => {
+    setVisibleCount(INITIAL_VISIBLE_ITEMS);
+  }, [activeChip, filters, catalogItems.length]);
 
   const resetFilters = () => {
     setFilters({ genre: "All", year: "All", type: "All", country: "All", status: "All", provider: "All", sort: "Popularity" });
@@ -148,7 +156,7 @@ export const BrowsePage = ({ myList, onToggleList }: BrowsePageProps) => {
             transition={{ duration: 0.3 }}
             className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6"
           >
-            {filtered.map((item) => (
+            {visibleItems.map((item) => (
               <PosterCard
                 key={item.id}
                 item={item}
@@ -158,6 +166,17 @@ export const BrowsePage = ({ myList, onToggleList }: BrowsePageProps) => {
             ))}
           </motion.div>
         )}
+        {!loading && visibleCount < filtered.length ? (
+          <div className="flex justify-center pt-2">
+            <button
+              type="button"
+              onClick={() => setVisibleCount((current) => Math.min(current + LOAD_MORE_STEP, filtered.length))}
+              className="min-h-10 rounded-lg border border-border bg-card px-4 py-2 text-sm text-foreground transition-colors hover:border-primary hover:text-primary"
+            >
+              Muat lebih banyak
+            </button>
+          </div>
+        ) : null}
       </div>
     </PageContainer>
   );
