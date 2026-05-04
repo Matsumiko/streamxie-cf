@@ -640,7 +640,12 @@ const endpointToProxyPath = (endpoint: unknown) => {
 };
 
 const PROVIDER_REQUEST_TIMEOUT_MS = 8_000;
-const TMDB_REQUEST_TIMEOUT_MS = 12_000;
+const TMDB_REQUEST_TIMEOUT_MS = 15_000;
+
+const wait = (ms: number) =>
+  new Promise<void>((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
 
 const fetchSameOriginJson = async (basePath: "/api/xie" | "/api/tmdb", proxyPath: string, query?: EndpointQuery) => {
   const normalizedPath = proxyPath.replace(/^\/+/, "");
@@ -650,31 +655,48 @@ const fetchSameOriginJson = async (basePath: "/api/xie" | "/api/tmdb", proxyPath
   });
 
   const timeoutMs = basePath === "/api/xie" ? PROVIDER_REQUEST_TIMEOUT_MS : TMDB_REQUEST_TIMEOUT_MS;
-  const controller = new AbortController();
-  const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
-  let response: Response;
+  const maxAttempts = basePath === "/api/tmdb" ? 2 : 1;
 
-  try {
-    response = await fetch(url.toString(), {
-      headers: {
-        accept: "application/json",
-      },
-      signal: controller.signal,
-    });
-  } catch (error) {
-    if (error instanceof DOMException && error.name === "AbortError") {
-      throw new Error(`streamXie API request timed out after ${timeoutMs}ms`);
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const response = await fetch(url.toString(), {
+        headers: {
+          accept: "application/json",
+        },
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        const httpError = new Error(`streamXie API request failed with ${response.status}`) as Error & { status?: number };
+        httpError.status = response.status;
+        throw httpError;
+      }
+
+      return response.json();
+    } catch (error) {
+      const status = typeof (error as { status?: unknown })?.status === "number"
+        ? Number((error as { status: number }).status)
+        : 0;
+      const aborted = error instanceof DOMException && error.name === "AbortError";
+      const transientHttp = status >= 500 || status === 429;
+      const transientNetwork = status === 0 || aborted;
+      const shouldRetry = basePath === "/api/tmdb" && attempt < maxAttempts && (transientHttp || transientNetwork);
+
+      if (!shouldRetry) {
+        if (aborted) throw new Error(`streamXie API request timed out after ${timeoutMs}ms`);
+        throw error;
+      }
+
+      await wait(250 * attempt);
+    } finally {
+      window.clearTimeout(timeoutId);
     }
-    throw error;
-  } finally {
-    window.clearTimeout(timeoutId);
   }
 
-  if (!response.ok) {
-    throw new Error(`streamXie API request failed with ${response.status}`);
-  }
-
-  return response.json();
+  throw new Error("streamXie API request failed after retry attempts");
 };
 
 const fetchProviderJson = (proxyPath: string, query?: EndpointQuery) =>
