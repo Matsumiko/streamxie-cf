@@ -230,11 +230,11 @@ export const BrowsePage = ({ myList, onToggleList }: BrowsePageProps) => {
   const hasActiveFilters = Object.entries(filters).some(([key, value]) => key !== "sort" && value !== "All");
   const visibleItems = filtered.slice(0, visibleCount);
   const canLoadMoreResults = !loading && (visibleCount < filtered.length || loadedPage < totalPages);
-  const subtitle = `${filtered.length.toLocaleString()} title tampil · ${catalogItems.length.toLocaleString()} termuat dari ${totalResults.toLocaleString()} total TMDB`;
+  const subtitle = `${visibleItems.length.toLocaleString()} title tampil · ${catalogItems.length.toLocaleString()} termuat dari ${totalResults.toLocaleString()} total TMDB`;
 
   useEffect(() => {
     setVisibleCount(INITIAL_VISIBLE_ITEMS);
-  }, [activeChip, filters, catalogItems.length]);
+  }, [activeChip, filters]);
 
   const resetFilters = () => {
     setFilters({
@@ -272,7 +272,7 @@ export const BrowsePage = ({ myList, onToggleList }: BrowsePageProps) => {
       setLoadedPage(response.page);
       setTotalPages(response.totalPages);
       setTotalResults(response.totalResults);
-      setVisibleCount((current) => current + LOAD_MORE_STEP);
+      setVisibleCount((current) => current + response.items.length);
     } catch (error: unknown) {
       if (requestSequenceRef.current !== requestId) return;
       setLoadError(error instanceof Error ? error.message : "Gagal memuat halaman lanjutan TMDB.");
