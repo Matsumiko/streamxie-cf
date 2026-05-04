@@ -48,8 +48,8 @@ export const FilterPanel = ({ filters, setFilters, options }: FilterPanelProps) 
     { key: "genre", label: "Genre", values: resolvedOptions.genres },
     { key: "year", label: "Year", values: resolvedOptions.years },
     { key: "type", label: "Type", values: resolvedOptions.contentTypes },
-    { key: "country", label: "Country", values: resolvedOptions.countries },
-    { key: "status", label: "Status", values: resolvedOptions.statuses },
+    { key: "country", label: "Bahasa asli", values: resolvedOptions.countries },
+    { key: "status", label: "Status rilis", values: resolvedOptions.statuses },
     { key: "provider", label: "Provider", values: resolvedOptions.providers },
     { key: "sort", label: "Sort by", values: resolvedOptions.sortOptions },
   ] as const;

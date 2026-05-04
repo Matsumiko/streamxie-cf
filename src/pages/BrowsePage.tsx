@@ -9,7 +9,13 @@ import { LoadingSkeleton } from "@/components/common/LoadingSkeleton";
 import { EmptyState } from "@/components/common/EmptyState";
 import { SectionHeader } from "@/components/common/SectionHeader";
 import { useDocumentMeta } from "@/hooks/useDocumentMeta";
-import { fetchTmdbBrowsePage, getStreamProviderLabel, TmdbBrowseScope } from "@/lib/streamxie";
+import {
+  fetchTmdbBrowseFacets,
+  TmdbBrowseFilters,
+  fetchTmdbBrowsePage,
+  getStreamProviderLabel,
+  TmdbBrowseScope,
+} from "@/lib/streamxie";
 import type { ContentItem } from "@/types/content";
 
 type BrowsePageProps = {
@@ -44,6 +50,9 @@ export const BrowsePage = ({ myList, onToggleList }: BrowsePageProps) => {
   const [loadedPage, setLoadedPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [totalResults, setTotalResults] = useState(0);
+  const [genreFilterOptions, setGenreFilterOptions] = useState<string[]>([]);
+  const [genreNameToId, setGenreNameToId] = useState<Map<string, number>>(new Map());
+  const [languageFilterOptions, setLanguageFilterOptions] = useState<string[]>([]);
   const requestSequenceRef = useRef(0);
 
   const [filters, setFilters] = useState<BrowseFilters>({
@@ -67,8 +76,21 @@ export const BrowsePage = ({ myList, onToggleList }: BrowsePageProps) => {
   const tmdbScope = useMemo<TmdbBrowseScope>(() => {
     if (activeChip === "Movies") return "movie";
     if (activeChip === "Series") return "tv";
+    if (filters.type === "Movies") return "movie";
+    if (filters.type === "Series") return "tv";
     return "all";
-  }, [activeChip]);
+  }, [activeChip, filters.type]);
+
+  const tmdbServerFilters = useMemo<TmdbBrowseFilters>(() => {
+    const parsedYear = Number.parseInt(filters.year, 10);
+    const statusFilter = filters.status === "Released" || filters.status === "Upcoming" ? filters.status : undefined;
+    return {
+      genreId: filters.genre !== "All" ? genreNameToId.get(filters.genre) : undefined,
+      year: filters.year !== "All" && Number.isFinite(parsedYear) ? parsedYear : undefined,
+      language: filters.country !== "All" ? filters.country : undefined,
+      status: statusFilter,
+    };
+  }, [filters.country, filters.genre, filters.status, filters.year, genreNameToId]);
 
   const mergeUniqueItems = useCallback((currentItems: ContentItem[], nextItems: ContentItem[]) => {
     const itemMap = new Map<string, ContentItem>();
@@ -81,10 +103,43 @@ export const BrowsePage = ({ myList, onToggleList }: BrowsePageProps) => {
     const category = new URLSearchParams(location.search).get("category");
     if (!category || !CHIP_OPTIONS.includes(category as (typeof CHIP_OPTIONS)[number])) {
       if (activeChip !== "All") setActiveChip("All");
+      setFilters((current) => ({ ...current, type: "All" }));
       return;
     }
     if (category !== activeChip) setActiveChip(category);
+    setFilters((current) => ({
+      ...current,
+      type: category === "Movies" || category === "Series" ? category : "All",
+    }));
   }, [activeChip, location.search]);
+
+  useEffect(() => {
+    let mounted = true;
+    fetchTmdbBrowseFacets()
+      .then((facets) => {
+        if (!mounted) return;
+        const genreMap = new Map<string, number>();
+        facets.genres.forEach((genre) => {
+          const id = Number.parseInt(genre.value, 10);
+          if (Number.isFinite(id) && id > 0) {
+            genreMap.set(genre.label, id);
+          }
+        });
+        setGenreNameToId(genreMap);
+        setGenreFilterOptions(facets.genres.map((genre) => genre.label));
+        setLanguageFilterOptions(facets.languages.map((language) => language.value));
+      })
+      .catch(() => {
+        if (!mounted) return;
+        setGenreNameToId(new Map());
+        setGenreFilterOptions([]);
+        setLanguageFilterOptions([]);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -100,7 +155,7 @@ export const BrowsePage = ({ myList, onToggleList }: BrowsePageProps) => {
     setTotalResults(0);
     setVisibleCount(INITIAL_VISIBLE_ITEMS);
 
-    fetchTmdbBrowsePage(tmdbScope, 1, sortMode)
+    fetchTmdbBrowsePage(tmdbScope, 1, sortMode, tmdbServerFilters)
       .then((response) => {
         if (!isMounted || requestSequenceRef.current !== requestId) return;
         setCatalogItems(response.items);
@@ -120,34 +175,29 @@ export const BrowsePage = ({ myList, onToggleList }: BrowsePageProps) => {
     return () => {
       isMounted = false;
     };
-  }, [tmdbScope, sortMode]);
+  }, [tmdbScope, sortMode, tmdbServerFilters]);
 
   const filterOptions = useMemo(() => {
     const unique = (values: string[]) => Array.from(new Set(values.filter(Boolean))).sort();
+    const currentYear = new Date().getFullYear() + 1;
+    const years = Array.from({ length: 80 }, (_, index) => String(currentYear - index));
 
     return {
-      genres: unique(catalogItems.flatMap((item) => item.genres)),
-      years: unique(catalogItems.map((item) => String(item.year))).sort((a, b) => Number(b) - Number(a)),
-      countries: unique(catalogItems.map((item) => item.country)),
-      statuses: unique(catalogItems.map((item) => item.status)),
+      genres: genreFilterOptions.length > 0 ? genreFilterOptions : unique(catalogItems.flatMap((item) => item.genres)),
+      years,
+      countries: languageFilterOptions.length > 0 ? languageFilterOptions : unique(catalogItems.map((item) => item.country)),
+      statuses: ["Released", "Upcoming"],
       contentTypes: ["Movies", "Series"],
       providers: unique(catalogItems.map((item) => getStreamProviderLabel(item.provider))),
       sortOptions: ["Popularity", "Latest", "Rating"],
     };
-  }, [catalogItems]);
+  }, [catalogItems, genreFilterOptions, languageFilterOptions]);
 
   const filtered = useMemo(() => {
     let items = [...catalogItems];
     if (activeChip !== "All" && PROVIDER_CHIPS.includes(activeChip as (typeof PROVIDER_CHIPS)[number])) {
       items = items.filter((item) => getStreamProviderLabel(item.provider) === activeChip);
-    } else if (activeChip !== "All") {
-      items = items.filter((item) => item.category === activeChip);
     }
-    if (filters.genre !== "All") items = items.filter((item) => item.genres.includes(filters.genre));
-    if (filters.year !== "All") items = items.filter((item) => `${item.year}` === filters.year);
-    if (filters.type !== "All") items = items.filter((item) => item.category === filters.type || item.type === filters.type.toLowerCase());
-    if (filters.country !== "All") items = items.filter((item) => item.country === filters.country);
-    if (filters.status !== "All") items = items.filter((item) => item.status === filters.status);
     if (filters.provider !== "All") items = items.filter((item) => getStreamProviderLabel(item.provider) === filters.provider);
     if (filters.sort === "Latest") items.sort((a, b) => b.year - a.year);
     if (filters.sort === "Rating") items.sort((a, b) => Number(b.rating) - Number(a.rating));
@@ -192,7 +242,7 @@ export const BrowsePage = ({ myList, onToggleList }: BrowsePageProps) => {
     setLoadError(null);
 
     try {
-      const response = await fetchTmdbBrowsePage(tmdbScope, nextPage, sortMode);
+      const response = await fetchTmdbBrowsePage(tmdbScope, nextPage, sortMode, tmdbServerFilters);
       if (requestSequenceRef.current !== requestId) return;
       setCatalogItems((current) => mergeUniqueItems(current, response.items));
       setLoadedPage(response.page);
@@ -205,7 +255,7 @@ export const BrowsePage = ({ myList, onToggleList }: BrowsePageProps) => {
     } finally {
       if (requestSequenceRef.current === requestId) setLoadingMore(false);
     }
-  }, [filtered.length, loadedPage, loading, loadingMore, mergeUniqueItems, sortMode, tmdbScope, totalPages, visibleCount]);
+  }, [filtered.length, loadedPage, loading, loadingMore, mergeUniqueItems, sortMode, tmdbScope, tmdbServerFilters, totalPages, visibleCount]);
 
   return (
     <PageContainer className="pt-32 pb-16">
@@ -233,6 +283,10 @@ export const BrowsePage = ({ myList, onToggleList }: BrowsePageProps) => {
           active={activeChip}
           onChange={(value) => {
             setActiveChip(value);
+            setFilters((current) => ({
+              ...current,
+              type: value === "Movies" || value === "Series" ? value : "All",
+            }));
             navigate(value === "All" ? "/browse" : `/browse?category=${encodeURIComponent(value)}`, { replace: true });
           }}
         />

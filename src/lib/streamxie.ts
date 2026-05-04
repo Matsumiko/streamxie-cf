@@ -49,6 +49,23 @@ export type TmdbBrowsePage = {
   items: ContentItem[];
 };
 
+export type TmdbBrowseFilters = {
+  genreId?: number;
+  year?: number;
+  language?: string;
+  status?: "All" | "Released" | "Upcoming";
+};
+
+export type TmdbBrowseFacet = {
+  value: string;
+  label: string;
+};
+
+export type TmdbBrowseFacets = {
+  genres: TmdbBrowseFacet[];
+  languages: TmdbBrowseFacet[];
+};
+
 export type StreamPlaybackSource = {
   server: string;
   url: string;
@@ -914,6 +931,13 @@ const extractGenreRows = (response: unknown) => {
   return rows.filter(isRecord);
 };
 
+const extractLanguageRows = (response: unknown) => {
+  const data = payloadData(response);
+  if (Array.isArray(data)) return data.filter(isRecord);
+  if (isRecord(data) && Array.isArray(data.results)) return data.results.filter(isRecord);
+  return [] as Record<string, unknown>[];
+};
+
 const fetchTmdbGenreMap = async () => {
   const map = new Map<number, string>(
     Object.entries(FALLBACK_TMDB_GENRES).map(([id, name]) => [Number(id), name]),
@@ -934,6 +958,60 @@ const fetchTmdbGenreMap = async () => {
   });
 
   return map;
+};
+
+let tmdbBrowseFacetsCache: TmdbBrowseFacets | null = null;
+let tmdbBrowseFacetsPending: Promise<TmdbBrowseFacets> | null = null;
+
+export const fetchTmdbBrowseFacets = async (): Promise<TmdbBrowseFacets> => {
+  if (tmdbBrowseFacetsCache) return tmdbBrowseFacetsCache;
+  if (tmdbBrowseFacetsPending) return tmdbBrowseFacetsPending;
+
+  tmdbBrowseFacetsPending = Promise.allSettled([
+    fetchTmdbGenreMap(),
+    fetchTmdbJson("configuration/languages"),
+  ])
+    .then((results) => {
+      const genreMap = results[0].status === "fulfilled"
+        ? results[0].value
+        : new Map<number, string>(Object.entries(FALLBACK_TMDB_GENRES).map(([id, name]) => [Number(id), name]));
+
+      const genres: TmdbBrowseFacet[] = Array.from(genreMap.entries())
+        .sort((a, b) => a[1].localeCompare(b[1]))
+        .map(([id, name]) => ({
+          value: String(id),
+          label: name,
+        }));
+
+      const languages: TmdbBrowseFacet[] = results[1].status === "fulfilled"
+        ? extractLanguageRows(results[1].value)
+          .map((entry) => {
+            const code = firstString(entry.iso_639_1).toLowerCase();
+            if (!code || code.length !== 2) return null;
+            const localName = firstString(entry.name);
+            const englishName = firstString(entry.english_name);
+            const name = localName || englishName || code.toUpperCase();
+            return {
+              value: code.toUpperCase(),
+              label: `${name} (${code.toUpperCase()})`,
+            } as TmdbBrowseFacet;
+          })
+          .filter((entry): entry is TmdbBrowseFacet => Boolean(entry))
+          .sort((a, b) => a.label.localeCompare(b.label))
+        : [];
+
+      const resolved: TmdbBrowseFacets = {
+        genres,
+        languages,
+      };
+      tmdbBrowseFacetsCache = resolved;
+      return resolved;
+    })
+    .finally(() => {
+      tmdbBrowseFacetsPending = null;
+    });
+
+  return tmdbBrowseFacetsPending;
 };
 
 const tmdbGenres = (raw: Record<string, unknown>, genreMap: Map<number, string>, fallback: ContentItem) => {
@@ -1400,14 +1478,49 @@ const tmdbDiscoverSortBy = (mediaType: "movie" | "tv", sort: "Popularity" | "Lat
   return "popularity.desc";
 };
 
+const todayIsoDate = () => new Date().toISOString().slice(0, 10);
+
 const queryForTmdbDiscover = (
   mediaType: "movie" | "tv",
   page: number,
   sort: "Popularity" | "Latest" | "Rating",
-) => ({
-  page,
-  sort_by: tmdbDiscoverSortBy(mediaType, sort),
-});
+  filters?: TmdbBrowseFilters,
+) => {
+  const query: EndpointQuery = {
+    page,
+    sort_by: tmdbDiscoverSortBy(mediaType, sort),
+  };
+
+  if (filters?.genreId && Number.isFinite(filters.genreId) && filters.genreId > 0) {
+    query.with_genres = Math.trunc(filters.genreId);
+  }
+
+  if (filters?.year && Number.isFinite(filters.year) && filters.year >= 1900 && filters.year <= 2100) {
+    const safeYear = Math.trunc(filters.year);
+    if (mediaType === "movie") query.primary_release_year = safeYear;
+    if (mediaType === "tv") query.first_air_date_year = safeYear;
+  }
+
+  if (filters?.language) {
+    const normalizedLanguage = filters.language.trim().toLowerCase();
+    if (/^[a-z]{2}$/.test(normalizedLanguage)) {
+      query.with_original_language = normalizedLanguage;
+      if (mediaType === "tv") query.with_origin_country = normalizedLanguage.toUpperCase();
+    }
+  }
+
+  if (filters?.status === "Released" || filters?.status === "Upcoming") {
+    const today = todayIsoDate();
+    const isReleased = filters.status === "Released";
+    if (mediaType === "movie") {
+      query[isReleased ? "primary_release_date.lte" : "primary_release_date.gte"] = today;
+    } else {
+      query[isReleased ? "first_air_date.lte" : "first_air_date.gte"] = today;
+    }
+  }
+
+  return query;
+};
 
 const normalizeTmdbDiscoverPage = (
   response: unknown,
@@ -1434,23 +1547,24 @@ export const fetchTmdbBrowsePage = async (
   scope: TmdbBrowseScope,
   page = 1,
   sort: "Popularity" | "Latest" | "Rating" = "Popularity",
+  filters?: TmdbBrowseFilters,
 ): Promise<TmdbBrowsePage> => {
   const safePage = clampTmdbPage(page);
   const genreMap = await fetchTmdbGenreMap();
 
   if (scope === "movie") {
-    const response = await fetchTmdbJson("discover/movie", queryForTmdbDiscover("movie", safePage, sort));
+    const response = await fetchTmdbJson("discover/movie", queryForTmdbDiscover("movie", safePage, sort, filters));
     return normalizeTmdbDiscoverPage(response, "movie", safePage, (safePage - 1) * 1000, genreMap);
   }
 
   if (scope === "tv") {
-    const response = await fetchTmdbJson("discover/tv", queryForTmdbDiscover("tv", safePage, sort));
+    const response = await fetchTmdbJson("discover/tv", queryForTmdbDiscover("tv", safePage, sort, filters));
     return normalizeTmdbDiscoverPage(response, "tv", safePage, 500000 + (safePage - 1) * 1000, genreMap);
   }
 
   const [movieResponse, tvResponse] = await Promise.all([
-    fetchTmdbJson("discover/movie", queryForTmdbDiscover("movie", safePage, sort)),
-    fetchTmdbJson("discover/tv", queryForTmdbDiscover("tv", safePage, sort)),
+    fetchTmdbJson("discover/movie", queryForTmdbDiscover("movie", safePage, sort, filters)),
+    fetchTmdbJson("discover/tv", queryForTmdbDiscover("tv", safePage, sort, filters)),
   ]);
   const moviePage = normalizeTmdbDiscoverPage(movieResponse, "movie", safePage, (safePage - 1) * 1000, genreMap);
   const tvPage = normalizeTmdbDiscoverPage(tvResponse, "tv", safePage, 500000 + (safePage - 1) * 1000, genreMap);
