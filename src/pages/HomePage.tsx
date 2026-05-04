@@ -32,7 +32,7 @@ export const HomePage = ({
 
   useDocumentMeta(
     "streamXie - Nonton Film dan Series Streaming Download Movie",
-    "Discover trending movies, anime, drama, and series with a cinematic dark experience.",
+    "Nonton film, series, anime, dan drama terbaru di streamXie dengan katalog trending, pencarian cepat, dan pengalaman streaming gelap yang sinematik setiap hari.",
   );
 
   return (
