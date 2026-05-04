@@ -248,8 +248,6 @@ export const BrowsePage = ({ myList, onToggleList }: BrowsePageProps) => {
       provider: "All",
       sort: "Popularity",
     });
-    setActiveChip("All");
-    navigate("/browse", { replace: true });
   };
 
   const loadMore = useCallback(async () => {
