@@ -73,6 +73,13 @@ test("modal pratinjau media mendukung keyboard dan pemulihan fokus", async ({ pa
 });
 
 test("command palette memulihkan fokus ke tombol pemicu setelah ditutup", async ({ page }) => {
+  const warnings = [];
+  page.on("console", (message) => {
+    if (message.type() === "warning") {
+      warnings.push(message.text());
+    }
+  });
+
   const response = await page.goto("/", { waitUntil: "domcontentloaded" });
   expect(response, "Navigation harus menghasilkan response").not.toBeNull();
   expect(response?.status(), "Route home harus 200").toBe(200);
@@ -85,6 +92,10 @@ test("command palette memulihkan fokus ke tombol pemicu setelah ditutup", async 
 
   const paletteInput = page.getByRole("textbox", { name: /Search /i }).first();
   await expect(paletteInput).toBeVisible();
+  expect(
+    warnings,
+    "Command palette tidak boleh memunculkan warning DialogContent tanpa description",
+  ).not.toContain("Warning: Missing `Description` or `aria-describedby={undefined}` for {DialogContent}.");
 
   await page.keyboard.press("Escape");
   await expect(paletteInput).toBeHidden();

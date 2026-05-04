@@ -4,6 +4,7 @@ import { MagnifyingGlass, FilmStrip } from "@phosphor-icons/react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -177,6 +178,9 @@ export const CommandPalette = ({ open, onOpenChange }: CommandPaletteProps) => {
           <DialogTitle className="text-left text-xl font-medium uppercase tracking-[0.1em] text-foreground">
             Quick search · {scopeLabel}
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            Search titles, genres, cast, or keywords inside the current catalog scope.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="flex min-h-0 flex-1 flex-col gap-6">
