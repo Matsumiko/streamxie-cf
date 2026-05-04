@@ -22,6 +22,45 @@
       })(window, document, "script", "dataLayer", "GTM-56FXJL32");
     </script>
     <!-- End Google Tag Manager -->
+    <script>
+      // Sanitasi awal histori pencarian agar nilai kosong/duplikat tidak menetap
+      // meski aplikasi belum selesai mount.
+      (function () {
+        var keys = ["streamxie-search-history", "streamora-search-history"];
+        var sanitize = function (value) {
+          if (!Array.isArray(value)) return [];
+          var dedup = {};
+          var cleaned = [];
+          for (var i = 0; i < value.length; i += 1) {
+            var item = value[i];
+            if (typeof item !== "string") continue;
+            var normalized = item.trim();
+            if (!normalized) continue;
+            var key = normalized.toLowerCase();
+            if (dedup[key]) continue;
+            dedup[key] = true;
+            cleaned.push(normalized);
+            if (cleaned.length >= 6) break;
+          }
+          return cleaned;
+        };
+
+        for (var idx = 0; idx < keys.length; idx += 1) {
+          var storageKey = keys[idx];
+          try {
+            var raw = window.localStorage.getItem(storageKey);
+            if (!raw) continue;
+            var parsed = JSON.parse(raw);
+            var cleaned = sanitize(parsed);
+            if (JSON.stringify(parsed) !== JSON.stringify(cleaned)) {
+              window.localStorage.setItem(storageKey, JSON.stringify(cleaned));
+            }
+          } catch (_error) {
+            // Abaikan error localStorage agar render awal tidak terganggu.
+          }
+        }
+      })();
+    </script>
     <title>streamXie - Nonton Film dan Series Streaming Download Movie</title>
     <link rel="icon" type="image/png" href="./src/assets/streamxie-brand-logo.png" />
     <meta name="theme-color" content="#10cfa6" />
