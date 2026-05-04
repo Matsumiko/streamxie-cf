@@ -40,6 +40,15 @@ export type StreamSectionPage = StreamSectionRoute & {
   items: ContentItem[];
 };
 
+export type TmdbBrowseScope = "all" | "movie" | "tv";
+
+export type TmdbBrowsePage = {
+  page: number;
+  totalPages: number;
+  totalResults: number;
+  items: ContentItem[];
+};
+
 export type StreamPlaybackSource = {
   server: string;
   url: string;
@@ -1375,6 +1384,83 @@ const totalPagesFromTmdbResponse = (response: unknown, fallbackPage: number) => 
   const dataRecord = isRecord(data) ? data : {};
   const totalPages = numberFrom(dataRecord.total_pages ?? body.total_pages, fallbackPage);
   return Math.max(fallbackPage, Math.min(500, Math.trunc(totalPages) || fallbackPage));
+};
+
+const totalResultsFromTmdbResponse = (response: unknown) => {
+  const body = isRecord(response) ? response : {};
+  const data = payloadData(response);
+  const dataRecord = isRecord(data) ? data : {};
+  const totalResults = numberFrom(dataRecord.total_results ?? body.total_results, 0);
+  return Math.max(0, Math.trunc(totalResults));
+};
+
+const tmdbDiscoverSortBy = (mediaType: "movie" | "tv", sort: "Popularity" | "Latest" | "Rating") => {
+  if (sort === "Latest") return mediaType === "movie" ? "primary_release_date.desc" : "first_air_date.desc";
+  if (sort === "Rating") return "vote_average.desc";
+  return "popularity.desc";
+};
+
+const queryForTmdbDiscover = (
+  mediaType: "movie" | "tv",
+  page: number,
+  sort: "Popularity" | "Latest" | "Rating",
+) => ({
+  page,
+  sort_by: tmdbDiscoverSortBy(mediaType, sort),
+});
+
+const normalizeTmdbDiscoverPage = (
+  response: unknown,
+  mediaType: "movie" | "tv",
+  safePage: number,
+  indexBase: number,
+  genreMap: Map<number, string>,
+): TmdbBrowsePage => {
+  const items = dedupeItems(
+    extractTmdbItems(response)
+      .map((entry, index) => normalizeTmdbItem(entry, mediaType, indexBase + index, genreMap))
+      .filter((item): item is ContentItem => Boolean(item)),
+  );
+
+  return {
+    page: safePage,
+    totalPages: totalPagesFromTmdbResponse(response, safePage),
+    totalResults: totalResultsFromTmdbResponse(response),
+    items,
+  };
+};
+
+export const fetchTmdbBrowsePage = async (
+  scope: TmdbBrowseScope,
+  page = 1,
+  sort: "Popularity" | "Latest" | "Rating" = "Popularity",
+): Promise<TmdbBrowsePage> => {
+  const safePage = clampTmdbPage(page);
+  const genreMap = await fetchTmdbGenreMap();
+
+  if (scope === "movie") {
+    const response = await fetchTmdbJson("discover/movie", queryForTmdbDiscover("movie", safePage, sort));
+    return normalizeTmdbDiscoverPage(response, "movie", safePage, (safePage - 1) * 1000, genreMap);
+  }
+
+  if (scope === "tv") {
+    const response = await fetchTmdbJson("discover/tv", queryForTmdbDiscover("tv", safePage, sort));
+    return normalizeTmdbDiscoverPage(response, "tv", safePage, 500000 + (safePage - 1) * 1000, genreMap);
+  }
+
+  const [movieResponse, tvResponse] = await Promise.all([
+    fetchTmdbJson("discover/movie", queryForTmdbDiscover("movie", safePage, sort)),
+    fetchTmdbJson("discover/tv", queryForTmdbDiscover("tv", safePage, sort)),
+  ]);
+  const moviePage = normalizeTmdbDiscoverPage(movieResponse, "movie", safePage, (safePage - 1) * 1000, genreMap);
+  const tvPage = normalizeTmdbDiscoverPage(tvResponse, "tv", safePage, 500000 + (safePage - 1) * 1000, genreMap);
+
+  return {
+    page: safePage,
+    totalPages: Math.min(500, Math.max(moviePage.totalPages, tvPage.totalPages, safePage)),
+    totalResults: moviePage.totalResults + tvPage.totalResults,
+    items: dedupeItems([...moviePage.items, ...tvPage.items]),
+  };
 };
 
 export const fetchStreamSectionPage = async (
